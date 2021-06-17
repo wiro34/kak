@@ -1,0 +1,17 @@
+/** @format */
+
+.colorPaletteContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    width: 20px;
+    height: 20px;
+    border: solid 1px lightgray;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+}

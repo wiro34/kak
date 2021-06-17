@@ -1,0 +1,71 @@
+# @format
+
+service: advent-calendar-2020
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'ap-northeast-1'}
+  runtime: nodejs12.x
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource:
+        - Fn::GetAtt: [ConnectionsTable, Arn]
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-connections-${self:provider.stage}/index/*"
+  environment:
+    TABLE_NAME:
+      Ref: ConnectionsTable
+  websocketsApiName: ${self:service}-${self:provider.stage}
+  websocketsApiRouteSelectionExpression: $request.body.message
+
+functions:
+  connectHandler:
+    handler: onConnect/app.handler
+    events:
+      - websocket: $connect
+  disconnectHandler:
+    handler: onDisconnect/app.handler
+    events:
+      - websocket: $disconnect
+  sendMessageHandler:
+    handler: sendMessage/app.handler
+    events:
+      - websocket: sendMessage
+
+resources:
+  Resources:
+    ConnectionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-connections-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+          - AttributeName: roomId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+          - IndexName: roomId-index
+            KeySchema:
+              - AttributeName: roomId
+                KeyType: HASH
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+            Projection:
+              ProjectionType: ALL
+        SSESpecification:
+          SSEEnabled: False
