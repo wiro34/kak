@@ -1,8 +1,10 @@
 /** @format */
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import Sockette from "sockette";
+import { newConnection } from "../../lib/webSocket";
 import cls from "./DrawableCanvas.module.scss";
-import { Palette } from "../../lib/Palette";
+import { BLACK, Palette } from "../../lib/Palette";
 
 type Coordinate = {
   x: number;
@@ -12,37 +14,37 @@ type Coordinate = {
 type Props = {
   palette: Palette;
   editable?: boolean;
-  onDraw?: (palette: Palette, coordinates: Coordinate[]) => void;
 };
 
-const DrawableCanvas = function ({ palette, editable, onDraw }: Props) {
+const DrawableCanvas = function ({ palette, editable }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [drawing, setDrawing] = useState(false);
   const [leaveInDrawing, setLeaveInDrawing] = useState(false);
   const [lastPoint, setLastPoint] = useState<Coordinate | undefined>(undefined);
+  const [socket, setSocket] = useState<Sockette | undefined>(undefined);
 
   const startDraw = useCallback((event: MouseEvent) => {
-    const coordinate = getCoordinate(event);
-    if (coordinate) {
+    const coordinates = getCoordinates(event);
+    if (coordinates) {
       setDrawing(true);
-      setLastPoint(coordinate);
+      setLastPoint(coordinates);
     }
   }, []);
   const doDrawing = useCallback(
     (event: MouseEvent) => {
       if (drawing) {
-        const coordinate = getCoordinate(event);
-        if (coordinate && lastPoint) {
-          // console.log("move", lastPoint, coordinate);
-          drawLine(palette, lastPoint, coordinate);
-          if (onDraw) {
-            onDraw(palette, [lastPoint, coordinate]);
+        const coordinates = getCoordinates(event);
+        if (coordinates && lastPoint) {
+          // console.log("move", lastPoint, coordinates);
+          if (socket) {
+            socket.json({ message: "sendMessage", roomId: "test", data: { palette, lastPoint, coordinates } });
           }
+          drawLine(palette, lastPoint, coordinates);
         }
-        setLastPoint(coordinate);
+        setLastPoint(coordinates);
       }
     },
-    [drawing, lastPoint, palette, onDraw]
+    [drawing, lastPoint, palette, socket]
   );
   const stopDraw = useCallback((event: MouseEvent) => {
     setDrawing(false);
@@ -50,7 +52,7 @@ const DrawableCanvas = function ({ palette, editable, onDraw }: Props) {
   const enterDraw = useCallback(
     (event: MouseEvent) => {
       if (leaveInDrawing) {
-        setLastPoint(getCoordinate(event));
+        setLastPoint(getCoordinates(event));
         setDrawing(true);
         setLeaveInDrawing(false);
       }
@@ -66,6 +68,13 @@ const DrawableCanvas = function ({ palette, editable, onDraw }: Props) {
     },
     [drawing, setLeaveInDrawing, setDrawing]
   );
+
+  const onReceivedMessage = (event: any) => {
+    console.log(event);
+    const data = JSON.parse(event.data);
+    console.log(data);
+    drawLine(data.palette, data.lastPoint, data.coordinates);
+  };
 
   useEffect(() => {
     if (!canvasRef.current) {
@@ -86,6 +95,16 @@ const DrawableCanvas = function ({ palette, editable, onDraw }: Props) {
     };
   }, [startDraw, doDrawing, stopDraw, enterDraw, leaveDraw]);
 
+  useEffect(() => {
+    const socket = newConnection("test", onReceivedMessage);
+    setSocket(socket);
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
+  }, []);
+
   const drawLine = (palette: Palette, originalMousePosition: Coordinate, newMousePosition: Coordinate) => {
     if (!canvasRef.current) {
       return;
@@ -105,7 +124,7 @@ const DrawableCanvas = function ({ palette, editable, onDraw }: Props) {
       context.stroke();
     }
   };
-  const getCoordinate = (event: MouseEvent): Coordinate | undefined => {
+  const getCoordinates = (event: MouseEvent): Coordinate | undefined => {
     if (!canvasRef.current) {
       return;
     }
@@ -116,6 +135,14 @@ const DrawableCanvas = function ({ palette, editable, onDraw }: Props) {
       y: event.pageY - canvas.offsetTop,
     };
   };
+
+  if (!socket) {
+    return (
+      <div>
+        <h2>Loading...</h2>
+      </div>
+    );
+  }
 
   return (
     <div>
