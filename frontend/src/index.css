@@ -1,0 +1,64 @@
+/** @format */
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+  background: linear-gradient(170deg, rgba(71, 97, 173, 1) 0%, rgba(64, 183, 167, 1) 100%);
+  background-attachment: fixed;
+
+  color: #ffffff;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+}
+
+canvas {
+  background-color: #ffffff;
+}
+
+input {
+  padding: 3px 10px;
+  border: solid 2px rgba(255, 255, 255, 0.7);
+  border-radius: 5px;
+
+  font-size: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  outline: none;
+}
+input:focus {
+  /* border-color: #44c4ff; */
+  background-color: rgba(255, 255, 255, 0.1);
+  /* box-shadow: 0 0 2px 1px rgb(255 255 255 / 78%); */
+}
+input::placeholder {
+  color: #ffffff;
+  opacity: 0.5;
+}
+
+.notify-message {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+}

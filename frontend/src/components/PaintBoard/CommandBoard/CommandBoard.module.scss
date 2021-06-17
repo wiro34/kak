@@ -1,0 +1,21 @@
+/** @format */
+
+.commandBoard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    margin-right: 1rem;
+    cursor: pointer;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.commandIcon {
+  font-size: 1.5rem;
+  line-height: 1.5rem;
+}

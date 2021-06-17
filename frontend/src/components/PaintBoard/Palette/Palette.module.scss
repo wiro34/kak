@@ -1,0 +1,90 @@
+/** @format */
+
+.paletteContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.colorPalette {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
+  span {
+    width: 20px;
+    height: 20px;
+    border: solid 2px rgb(70 112 172 / 20%);
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+
+  .currentColor {
+    // width: 100px;
+    // height: 30px;
+    cursor: default;
+    border: none;
+    font-size: 1.5rem;
+    width: auto;
+    height: auto;
+    margin-bottom: 4px;
+    // border: solid 2px rgb(70 112 172 / 20%);
+  }
+}
+
+.brushPalette {
+  span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: solid 2px rgba(211, 211, 211);
+    border-radius: 20px;
+    background-color: #ffffff;
+    cursor: pointer;
+    margin-right: 5px;
+    position: relative;
+    opacity: 0.3;
+
+    &::after {
+      content: "";
+      display: inline-block;
+      background-color: #464646;
+      position: absolute;
+    }
+  }
+
+  .brush-thin::after {
+    width: 3px;
+    height: 3px;
+    border-radius: 1.5px;
+    top: 8px;
+    left: 8px;
+  }
+  .brush-normal::after {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    top: 7px;
+    left: 7px;
+  }
+  .brush-bold::after {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    top: 5px;
+    left: 5px;
+  }
+  .brush-large::after {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    top: 0px;
+    left: 0px;
+  }
+
+  .current {
+    opacity: 1;
+  }
+}

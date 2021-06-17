@@ -1,0 +1,33 @@
+/** @format */
+
+.longTapIcon {
+  color: white;
+  position: relative;
+
+  .smoothIcon {
+    font-family: "Font Awesome 5 Free";
+  }
+
+  .smoothIcon i {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  }
+
+  &:active .smoothIcon i {
+    transition: clip-path 0.5s linear;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
+  }
+
+  .smoothIcon:before {
+    content: "\f1f8";
+    font-weight: 900;
+    position: absolute;
+    top: 0.25rem;
+    color: red;
+    clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  }
+
+  &:active .smoothIcon:before {
+    transition: clip-path 0.5s linear;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  }
+}

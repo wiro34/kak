@@ -1,0 +1,21 @@
+/** @format */
+
+.paintBoard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 640px;
+  height: 480px;
+}
+
+.tools {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 32px;
+  background-color: rgba(174, 148, 72, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -1,0 +1,23 @@
+/** @format */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  opacity: 0.8;
+  padding: 5px;
+}
+
+.visibleIcon {
+  cursor: pointer;
+  display: inline-block;
+  width: 1.4rem;
+}
+
+.active {
+  color: #aa0000;
+}
+
+.inactive {
+}

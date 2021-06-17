@@ -1,0 +1,68 @@
+/** @format */
+
+@use "sass:math";
+
+.canvasAlignment {
+  width: 95%;
+  margin: auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
+  & > div {
+    display: block;
+  }
+}
+
+$originalCanvasWidth: 640px;
+$originalCanvasHeight: 480px;
+
+.paintBoardWrapper {
+  margin: 1rem;
+  position: relative;
+
+  .paintBoard {
+    position: relative;
+  }
+}
+
+.pb_draw {
+  width: 100%;
+  height: $originalCanvasHeight;
+
+  .paintBoard {
+    margin: 1rem auto;
+  }
+}
+
+.pb_ThLarge {
+  $scale: 0.875;
+
+  width: $originalCanvasWidth * $scale;
+  height: $originalCanvasHeight * $scale;
+
+  .paintBoard {
+    transform: scale($scale);
+    left: math.div((($scale - 1) * $originalCanvasWidth), 2);
+    top: math.div((($scale - 1) * $originalCanvasHeight), 2);
+  }
+}
+
+.pb_Th {
+  $scale: 0.625;
+
+  width: $originalCanvasWidth * $scale;
+  height: $originalCanvasHeight * $scale;
+
+  .paintBoard {
+    transform: scale($scale);
+    left: math.div((($scale - 1) * $originalCanvasWidth), 2);
+    top: math.div((($scale - 1) * $originalCanvasHeight), 2);
+  }
+}
+
+.remoteCanvas {
+  margin: 1rem;
+}
