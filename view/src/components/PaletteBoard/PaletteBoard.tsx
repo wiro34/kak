@@ -1,15 +1,20 @@
 /** @format */
 
 import React, { useCallback, useState } from "react";
-import { BLACK, DEFAULT_PALETTE, Palette, UsableColors } from "../../lib/Palette";
+import {
+  BLACK,
+  DEFAULT_STROKE_STYLE,
+  StrokeStyle,
+  UsableColors,
+} from "../../lib/StrokeStyle";
 import cls from "./Palette.module.scss";
 
 type Props = {
-  changePalette: (palette: Palette) => void;
+  changePalette: (palette: StrokeStyle) => void;
 };
 
 const PaletteBoard = function ({ changePalette }: Props) {
-  const [palette, setPalette] = useState<Palette>(DEFAULT_PALETTE);
+  const [palette, setPalette] = useState<StrokeStyle>(DEFAULT_STROKE_STYLE);
   const changeColor = useCallback(
     (name: string) => {
       const foundColor = UsableColors.find((c) => c.name === name);
@@ -25,7 +30,11 @@ const PaletteBoard = function ({ changePalette }: Props) {
     <div>
       <div className={cls.colorPaletteContainer}>
         {UsableColors.map(({ name, code }) => (
-          <span style={{ backgroundColor: code }} key={name} onClick={() => changeColor(name)} />
+          <span
+            style={{ backgroundColor: code }}
+            key={name}
+            onClick={() => changeColor(name)}
+          />
         ))}
       </div>
     </div>

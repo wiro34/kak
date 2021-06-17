@@ -4,16 +4,17 @@ import React, { useState } from "react";
 import "./App.css";
 import DrawableCanvas from "./components/DrawableCanvas/DrawableCanvas";
 import PaletteBoard from "./components/PaletteBoard/PaletteBoard";
-import { DEFAULT_PALETTE, Palette } from "./lib/Palette";
+import { DEFAULT_STROKE_STYLE, StrokeStyle } from "./lib/StrokeStyle";
 
 function App() {
-  const [palette, setPalette] = useState<Palette>(DEFAULT_PALETTE);
+  const [strokeStyle, setStrokeStyle] =
+    useState<StrokeStyle>(DEFAULT_STROKE_STYLE);
 
   return (
     <div className="App">
       <h1>aaaa</h1>
-      <PaletteBoard changePalette={(p) => setPalette(p)} />
-      <DrawableCanvas palette={palette} editable />
+      <PaletteBoard changePalette={(p) => setStrokeStyle(p)} />
+      <DrawableCanvas strokeStyle={strokeStyle} editable />
     </div>
   );
 }

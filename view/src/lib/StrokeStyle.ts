@@ -1,4 +1,4 @@
-export type Palette = {
+export type StrokeStyle = {
   color: Color;
   width: "normal" | "bold";
 };
@@ -27,7 +27,7 @@ export const UsableColors: Color[] = [
   { name: "Pp", code: "#9c27b0" },
 ];
 
-export const DEFAULT_PALETTE: Palette = {
+export const DEFAULT_STROKE_STYLE: StrokeStyle = {
   color: BLACK,
   width: "normal",
 };
