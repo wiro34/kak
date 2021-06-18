@@ -2,9 +2,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Sockette from "sockette";
-import { newConnection } from "../../lib/webSocket";
 import cls from "./DrawableCanvas.module.scss";
-import { BLACK, StrokeStyle } from "../../lib/StrokeStyle";
+import { BLACK, StrokeStyle } from "../../lib/Stroke";
 
 type Coordinate = {
   x: number;

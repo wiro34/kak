@@ -1,12 +1,36 @@
+/** @format */
+
+export type Coordinate = {
+  x: number;
+  y: number;
+};
+
+export type Stroke = {
+  strokeStyle: StrokeStyle;
+  path: Coordinate[];
+};
+
 export type StrokeStyle = {
   color: Color;
-  width: "normal" | "bold";
+  brush: Brush;
 };
 
 export type Color = {
   name: string;
   code: string;
 };
+
+export type Brush = {
+  name: string;
+  width: number;
+};
+
+export const UsableBrushes = [
+  { name: "thin", width: 2 },
+  { name: "normal", width: 6 },
+  { name: "bold", width: 10 },
+  { name: "large", width: 20 },
+];
 
 export const BLACK: Color = { name: "Bl", code: "#000000" };
 
@@ -28,6 +52,6 @@ export const UsableColors: Color[] = [
 ];
 
 export const DEFAULT_STROKE_STYLE: StrokeStyle = {
-  color: BLACK,
-  width: "normal",
+  color: UsableColors[0],
+  brush: UsableBrushes[0],
 };

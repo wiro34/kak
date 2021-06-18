@@ -1,0 +1,92 @@
+/** @format */
+
+.paletteContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 200px;
+}
+
+.colorPalette {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+
+  span {
+    width: 20px;
+    height: 20px;
+    border: solid 1px lightgray;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+
+  .currentColor {
+    width: 100px;
+    height: 30px;
+    cursor: default;
+  }
+}
+
+.brushPalette {
+  span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: solid 2px rgba(211, 211, 211, 0.5);
+    border-radius: 20px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    position: relative;
+
+    &::after {
+      content: "";
+      display: inline-block;
+      background-color: rgba(102, 102, 102, 0.5);
+      position: absolute;
+    }
+  }
+
+  .brush-thin::after {
+    width: 3px;
+    height: 3px;
+    border-radius: 1.5px;
+    top: 8px;
+    left: 8px;
+  }
+  .brush-normal::after {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    top: 7px;
+    left: 7px;
+  }
+  .brush-bold::after {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    top: 5px;
+    left: 5px;
+  }
+  .brush-large::after {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    top: 0px;
+    left: 0px;
+  }
+
+  .current {
+    border: solid 2px rgba(211, 211, 211, 1);
+    background-color: #fff1be;
+
+    &::after {
+      background-color: rgba(102, 102, 102, 1);
+    }
+  }
+}
