@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import cls from "./DrawableCanvas.module.scss";
 import { StrokeStyle } from "../../lib/StrokeStyle";
 
@@ -25,34 +25,48 @@ type Props = {
  */
 const DrawableCanvas = function ({ strokeStyle, editable, onDraw }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [drawing, setDrawing] = useState(false);
-  const [leaveInDrawing, setLeaveInDrawing] = useState(false);
-  const [lastPoint, setLastPoint] = useState<Coordinate | undefined>(undefined);
-  const [stroke, setStroke] = useState<Stroke | undefined>(undefined);
   const [strokeList, setStrokeList] = useState<Stroke[]>([]);
 
-  const startDraw = useCallback(
-    (event: MouseEvent) => {
+  console.log("render", strokeList);
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+
+    // 負荷削減のため状態保存に state ではなく素の変数を使用する
+    let drawing = false;
+    let leaveInDrawing = false;
+    let lastPoint: Coordinate | undefined = undefined;
+    let stroke: Stroke | undefined = undefined;
+
+    const startDraw = (event: MouseEvent) => {
+      if (drawing) {
+        stopDraw(event);
+      }
       const coordinate = getCoordinate(event);
       if (coordinate) {
-        setDrawing(true);
-        setLastPoint(coordinate);
-        setStroke({ strokeStyle, path: [coordinate] });
+        drawing = true;
+        lastPoint = coordinate;
+        stroke = { strokeStyle, path: [coordinate] };
       }
-    },
-    [setDrawing, setLastPoint, setStrokeList, strokeStyle]
-  );
-  const doDrawing = useCallback(
-    (event: MouseEvent) => {
+    };
+    const stopDraw = (event: MouseEvent) => {
+      if (stroke) {
+        setStrokeList([...strokeList, stroke]);
+        console.log(stroke, strokeList);
+        stroke = undefined;
+      }
+    };
+
+    const doDrawing = (event: MouseEvent) => {
       if (drawing) {
         const coordinate = getCoordinate(event);
         if (coordinate && lastPoint) {
+          console.log(stroke);
           // console.log("move", lastPoint, coordinate);
           if (stroke) {
-            setStroke({
-              ...stroke,
-              path: [...stroke.path, coordinate],
-            });
+            stroke.path.push(coordinate);
           }
           // drawLine(strokeStyle, lastPoint, coordinate);
           refleshCanvas(stroke);
@@ -61,86 +75,55 @@ const DrawableCanvas = function ({ strokeStyle, editable, onDraw }: Props) {
             onDraw(strokeStyle, [lastPoint, coordinate]);
           }
         }
-        setLastPoint(coordinate);
+        lastPoint = coordinate;
       }
-    },
-    [drawing, lastPoint, strokeStyle, onDraw]
-  );
-  const stopDraw = useCallback(
-    (event: MouseEvent) => {
-      setDrawing(false);
-      if (stroke) {
-        setStrokeList([...strokeList, stroke]);
-        setStroke(undefined);
-        console.log(strokeList);
-      }
-    },
-    [setDrawing, setStrokeList, strokeList, stroke, setStroke]
-  );
-  const enterDraw = useCallback(
-    (event: MouseEvent) => {
-      if (leaveInDrawing) {
-        setLastPoint(getCoordinate(event));
-        setDrawing(true);
-        setLeaveInDrawing(false);
-      }
-    },
-    [leaveInDrawing, setLeaveInDrawing, setDrawing]
-  );
-  const leaveDraw = useCallback(
-    (event: MouseEvent) => {
-      if (drawing) {
-        setLeaveInDrawing(true);
-        setDrawing(false);
-      }
-    },
-    [drawing, setLeaveInDrawing, setDrawing]
-  );
+    };
 
-  useEffect(() => {
-    if (!canvasRef.current) {
-      return;
-    }
+    const enterDraw = (event: MouseEvent) => {
+      if (leaveInDrawing) {
+        lastPoint = getCoordinate(event);
+        if (stroke && lastPoint) {
+          stroke.path.push(lastPoint);
+        }
+        drawing = true;
+        leaveInDrawing = false;
+      }
+    };
+    const leaveDraw = (event: MouseEvent) => {
+      if (drawing) {
+        lastPoint = getCoordinate(event);
+        if (stroke && lastPoint) {
+          stroke.path.push(lastPoint);
+        }
+        leaveInDrawing = true;
+        drawing = false;
+      }
+    };
+
+    const keydown = (event: KeyboardEvent) => {
+      console.log(event);
+      if (event.key === "z" && (event.ctrlKey || event.metaKey)) {
+        undo();
+      }
+    };
+
     const canvas: HTMLCanvasElement = canvasRef.current;
     canvas.addEventListener("mousedown", startDraw);
     canvas.addEventListener("mousemove", doDrawing);
     canvas.addEventListener("mouseup", stopDraw);
     canvas.addEventListener("mouseenter", enterDraw);
     canvas.addEventListener("mouseleave", leaveDraw);
+    canvas.addEventListener("keydown", keydown);
     return () => {
       canvas.removeEventListener("mousedown", startDraw);
       canvas.removeEventListener("mousemove", doDrawing);
       canvas.removeEventListener("mouseup", stopDraw);
       canvas.removeEventListener("mouseenter", enterDraw);
       canvas.removeEventListener("mouseleave", leaveDraw);
+      canvas.removeEventListener("keydown", keydown);
     };
-  }, [startDraw, doDrawing, stopDraw, enterDraw, leaveDraw]);
-
-  const drawLine = (
-    strokeStyle: StrokeStyle,
-    startPoint: Coordinate,
-    endPoint: Coordinate
-  ) => {
-    if (!canvasRef.current) {
-      return;
-    }
-    const canvas: HTMLCanvasElement = canvasRef.current;
-    const context = canvas.getContext("2d");
-    if (!context) {
-      return;
-    }
-
-    context.imageSmoothingEnabled = false;
-    context.strokeStyle = strokeStyle.color.code;
-    context.lineJoin = "round";
-    context.lineWidth = 5;
-
-    context.beginPath();
-    context.moveTo(startPoint.x, startPoint.y);
-    context.lineTo(endPoint.x, endPoint.y);
-    context.closePath();
-    context.stroke();
-  };
+  }, [onDraw, strokeList, setStrokeList]);
+  // }, [startDraw, doDrawing, stopDraw, enterDraw, leaveDraw]);
 
   const refleshCanvas = (currentStroke?: Stroke) => {
     if (!canvasRef.current) {
@@ -186,23 +169,18 @@ const DrawableCanvas = function ({ strokeStyle, editable, onDraw }: Props) {
   };
 
   const undo = () => {
-    if (drawing) {
-    } else {
-      strokeList.pop();
-      setStrokeList(strokeList);
-      console.log(strokeList);
-      refleshCanvas();
-    }
+    // if (drawing) {
+    // } else {
+    strokeList.pop();
+    setStrokeList(strokeList);
+    console.log(strokeList);
+    refleshCanvas();
+    // }
   };
 
   return (
     <div>
-      <canvas
-        width="640"
-        height="480"
-        ref={canvasRef}
-        className={cls.canvas}
-      ></canvas>
+      <canvas tabIndex={1} width="640" height="480" ref={canvasRef} className={cls.canvas}></canvas>
       <button onClick={undo}>undo</button>
     </div>
   );
