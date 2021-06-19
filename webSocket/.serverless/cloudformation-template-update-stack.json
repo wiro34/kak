@@ -71,16 +71,16 @@
         }
       }
     },
-    "ConnectHandlerLogGroup": {
-      "Type": "AWS::Logs::LogGroup",
-      "Properties": {
-        "LogGroupName": "/aws/lambda/kak-backend-dev-connectHandler"
-      }
-    },
     "DisconnectHandlerLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
         "LogGroupName": "/aws/lambda/kak-backend-dev-disconnectHandler"
+      }
+    },
+    "CreateRoomHandlerLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/kak-backend-dev-createRoomHandler"
       }
     },
     "SendMessageHandlerLogGroup": {
@@ -201,38 +201,6 @@
         }
       }
     },
-    "ConnectHandlerLambdaFunction": {
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Ref": "ServerlessDeploymentBucket"
-          },
-          "S3Key": "serverless/kak-backend/dev/1623906221439-2021-06-17T05:03:41.439Z/kak-backend.zip"
-        },
-        "Handler": "onConnect/app.handler",
-        "Runtime": "nodejs14.x",
-        "FunctionName": "kak-backend-dev-connectHandler",
-        "MemorySize": 1024,
-        "Timeout": 6,
-        "Environment": {
-          "Variables": {
-            "TABLE_NAME": {
-              "Ref": "KaKConnectionsTable"
-            }
-          }
-        },
-        "Role": {
-          "Fn::GetAtt": [
-            "IamRoleLambdaExecution",
-            "Arn"
-          ]
-        }
-      },
-      "DependsOn": [
-        "ConnectHandlerLogGroup"
-      ]
-    },
     "DisconnectHandlerLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -240,7 +208,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/kak-backend/dev/1623906221439-2021-06-17T05:03:41.439Z/kak-backend.zip"
+          "S3Key": "serverless/kak-backend/dev/1624123155774-2021-06-19T17:19:15.774Z/kak-backend.zip"
         },
         "Handler": "onDisconnect/app.handler",
         "Runtime": "nodejs14.x",
@@ -265,6 +233,38 @@
         "DisconnectHandlerLogGroup"
       ]
     },
+    "CreateRoomHandlerLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/kak-backend/dev/1624123155774-2021-06-19T17:19:15.774Z/kak-backend.zip"
+        },
+        "Handler": "createRoom/index.handler",
+        "Runtime": "nodejs14.x",
+        "FunctionName": "kak-backend-dev-createRoomHandler",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "KaKConnectionsTable"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "CreateRoomHandlerLogGroup"
+      ]
+    },
     "SendMessageHandlerLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -272,7 +272,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/kak-backend/dev/1623906221439-2021-06-17T05:03:41.439Z/kak-backend.zip"
+          "S3Key": "serverless/kak-backend/dev/1624123155774-2021-06-19T17:19:15.774Z/kak-backend.zip"
         },
         "Handler": "sendMessage/app.handler",
         "Runtime": "nodejs14.x",
@@ -297,34 +297,34 @@
         "SendMessageHandlerLogGroup"
       ]
     },
-    "ConnectHandlerLambdaVersionPqZSPg8hjMQTu3UxWDwG4Yq61hG47Bpa95wf0ZdFAQ": {
-      "Type": "AWS::Lambda::Version",
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "FunctionName": {
-          "Ref": "ConnectHandlerLambdaFunction"
-        },
-        "CodeSha256": "kVmbnr71ZbYdnFD9t0jdFM5JKAK7rtuaR3lICrKtgBA="
-      }
-    },
-    "DisconnectHandlerLambdaVersiondo86yMnIiaHSmR98rp1cR5lDCdNy0jsAJReNGHtHNg": {
+    "DisconnectHandlerLambdaVersionlHkCwjo0snslPZSLWvX9P3Z2tXtudBw6b3xvSNK4": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "DisconnectHandlerLambdaFunction"
         },
-        "CodeSha256": "kVmbnr71ZbYdnFD9t0jdFM5JKAK7rtuaR3lICrKtgBA="
+        "CodeSha256": "5YLj7sRWQEZNlmnBkUhgGkVT+2tJcpA5hFCgXnryyUE="
       }
     },
-    "SendMessageHandlerLambdaVersion4CTumdJFmVPUx0Ipl2sSaA7ryxT0poradyNORZPZmQ": {
+    "CreateRoomHandlerLambdaVersion2eFOR01dKY9ljkGJPW0l4C5KixGKYnMg2GCMCFxbsTU": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "CreateRoomHandlerLambdaFunction"
+        },
+        "CodeSha256": "5YLj7sRWQEZNlmnBkUhgGkVT+2tJcpA5hFCgXnryyUE="
+      }
+    },
+    "SendMessageHandlerLambdaVersiondibJqKb3RKst6CiBAQgBHY2mDfRDlUFwnbsmVeTEs": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "SendMessageHandlerLambdaFunction"
         },
-        "CodeSha256": "kVmbnr71ZbYdnFD9t0jdFM5JKAK7rtuaR3lICrKtgBA="
+        "CodeSha256": "5YLj7sRWQEZNlmnBkUhgGkVT+2tJcpA5hFCgXnryyUE="
       }
     },
     "WebsocketsApi": {
@@ -334,38 +334,6 @@
         "RouteSelectionExpression": "$request.body.message",
         "Description": "Serverless Websockets",
         "ProtocolType": "WEBSOCKET"
-      }
-    },
-    "ConnectHandlerWebsocketsIntegration": {
-      "Type": "AWS::ApiGatewayV2::Integration",
-      "Properties": {
-        "ApiId": {
-          "Ref": "WebsocketsApi"
-        },
-        "IntegrationType": "AWS_PROXY",
-        "IntegrationUri": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition"
-              },
-              ":apigateway:",
-              {
-                "Ref": "AWS::Region"
-              },
-              ":lambda:path/2015-03-31/functions/",
-              {
-                "Fn::GetAtt": [
-                  "ConnectHandlerLambdaFunction",
-                  "Arn"
-                ]
-              },
-              "/invocations"
-            ]
-          ]
-        }
       }
     },
     "DisconnectHandlerWebsocketsIntegration": {
@@ -391,6 +359,38 @@
               {
                 "Fn::GetAtt": [
                   "DisconnectHandlerLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "/invocations"
+            ]
+          ]
+        }
+      }
+    },
+    "CreateRoomHandlerWebsocketsIntegration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "WebsocketsApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "CreateRoomHandlerLambdaFunction",
                   "Arn"
                 ]
               },
@@ -432,23 +432,6 @@
         }
       }
     },
-    "ConnectHandlerLambdaPermissionWebsockets": {
-      "Type": "AWS::Lambda::Permission",
-      "DependsOn": [
-        "WebsocketsApi",
-        "ConnectHandlerLambdaFunction"
-      ],
-      "Properties": {
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "ConnectHandlerLambdaFunction",
-            "Arn"
-          ]
-        },
-        "Action": "lambda:InvokeFunction",
-        "Principal": "apigateway.amazonaws.com"
-      }
-    },
     "DisconnectHandlerLambdaPermissionWebsockets": {
       "Type": "AWS::Lambda::Permission",
       "DependsOn": [
@@ -459,6 +442,23 @@
         "FunctionName": {
           "Fn::GetAtt": [
             "DisconnectHandlerLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "CreateRoomHandlerLambdaPermissionWebsockets": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "WebsocketsApi",
+        "CreateRoomHandlerLambdaFunction"
+      ],
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CreateRoomHandlerLambdaFunction",
             "Arn"
           ]
         },
@@ -483,27 +483,6 @@
         "Principal": "apigateway.amazonaws.com"
       }
     },
-    "SconnectWebsocketsRoute": {
-      "Type": "AWS::ApiGatewayV2::Route",
-      "Properties": {
-        "ApiId": {
-          "Ref": "WebsocketsApi"
-        },
-        "RouteKey": "$connect",
-        "AuthorizationType": "NONE",
-        "Target": {
-          "Fn::Join": [
-            "/",
-            [
-              "integrations",
-              {
-                "Ref": "ConnectHandlerWebsocketsIntegration"
-              }
-            ]
-          ]
-        }
-      }
-    },
     "SdisconnectWebsocketsRoute": {
       "Type": "AWS::ApiGatewayV2::Route",
       "Properties": {
@@ -519,6 +498,27 @@
               "integrations",
               {
                 "Ref": "DisconnectHandlerWebsocketsIntegration"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "createRoomWebsocketsRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "WebsocketsApi"
+        },
+        "RouteKey": "createRoom",
+        "AuthorizationType": "NONE",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "CreateRoomHandlerWebsocketsIntegration"
               }
             ]
           ]
@@ -555,15 +555,15 @@
         "StageName": "dev",
         "Description": "Serverless Websockets",
         "DeploymentId": {
-          "Ref": "WebsocketsDeployment1yxqkcQPrFzv1rfn2Ll0beQF0JQfTWezKe1rkcdMsU"
+          "Ref": "WebsocketsDeploymentyz5OYqLpxwBMfuVpseO8QepeljCnKExzugbefUYYLPw"
         }
       }
     },
-    "WebsocketsDeployment1yxqkcQPrFzv1rfn2Ll0beQF0JQfTWezKe1rkcdMsU": {
+    "WebsocketsDeploymentyz5OYqLpxwBMfuVpseO8QepeljCnKExzugbefUYYLPw": {
       "Type": "AWS::ApiGatewayV2::Deployment",
       "DependsOn": [
-        "SconnectWebsocketsRoute",
         "SdisconnectWebsocketsRoute",
+        "createRoomWebsocketsRoute",
         "sendMessageWebsocketsRoute"
       ],
       "Properties": {
@@ -579,17 +579,13 @@
         "TableName": "kak-backend-connections-dev",
         "AttributeDefinitions": [
           {
-            "AttributeName": "connectionId",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "roomId",
+            "AttributeName": "key",
             "AttributeType": "S"
           }
         ],
         "KeySchema": [
           {
-            "AttributeName": "connectionId",
+            "AttributeName": "key",
             "KeyType": "HASH"
           }
         ],
@@ -597,24 +593,6 @@
           "ReadCapacityUnits": 1,
           "WriteCapacityUnits": 1
         },
-        "GlobalSecondaryIndexes": [
-          {
-            "IndexName": "roomId-index",
-            "KeySchema": [
-              {
-                "AttributeName": "roomId",
-                "KeyType": "HASH"
-              }
-            ],
-            "ProvisionedThroughput": {
-              "ReadCapacityUnits": 1,
-              "WriteCapacityUnits": 1
-            },
-            "Projection": {
-              "ProjectionType": "ALL"
-            }
-          }
-        ],
         "SSESpecification": {
           "SSEEnabled": false
         }
@@ -630,28 +608,28 @@
         "Name": "sls-kak-backend-dev-ServerlessDeploymentBucketName"
       }
     },
-    "ConnectHandlerLambdaFunctionQualifiedArn": {
-      "Description": "Current Lambda function version",
-      "Value": {
-        "Ref": "ConnectHandlerLambdaVersionPqZSPg8hjMQTu3UxWDwG4Yq61hG47Bpa95wf0ZdFAQ"
-      },
-      "Export": {
-        "Name": "sls-kak-backend-dev-ConnectHandlerLambdaFunctionQualifiedArn"
-      }
-    },
     "DisconnectHandlerLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "DisconnectHandlerLambdaVersiondo86yMnIiaHSmR98rp1cR5lDCdNy0jsAJReNGHtHNg"
+        "Ref": "DisconnectHandlerLambdaVersionlHkCwjo0snslPZSLWvX9P3Z2tXtudBw6b3xvSNK4"
       },
       "Export": {
         "Name": "sls-kak-backend-dev-DisconnectHandlerLambdaFunctionQualifiedArn"
       }
     },
+    "CreateRoomHandlerLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "CreateRoomHandlerLambdaVersion2eFOR01dKY9ljkGJPW0l4C5KixGKYnMg2GCMCFxbsTU"
+      },
+      "Export": {
+        "Name": "sls-kak-backend-dev-CreateRoomHandlerLambdaFunctionQualifiedArn"
+      }
+    },
     "SendMessageHandlerLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "SendMessageHandlerLambdaVersion4CTumdJFmVPUx0Ipl2sSaA7ryxT0poradyNORZPZmQ"
+        "Ref": "SendMessageHandlerLambdaVersiondibJqKb3RKst6CiBAQgBHY2mDfRDlUFwnbsmVeTEs"
       },
       "Export": {
         "Name": "sls-kak-backend-dev-SendMessageHandlerLambdaFunctionQualifiedArn"

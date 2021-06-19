@@ -27,14 +27,19 @@ provider:
   websocketsApiRouteSelectionExpression: $request.body.message
 
 functions:
-  connectHandler:
-    handler: onConnect/app.handler
-    events:
-      - websocket: $connect
+  # connectHandler:
+  #   handler: onConnect/app.handler
+  #   events:
+  #     - websocket: $connect
   disconnectHandler:
     handler: onDisconnect/app.handler
     events:
       - websocket: $disconnect
+  createRoomHandler:
+    handler: createRoom/index.handler
+    events:
+      - websocket: createRoom
+
   sendMessageHandler:
     handler: sendMessage/app.handler
     events:
@@ -47,25 +52,23 @@ resources:
       Properties:
         TableName: ${self:service}-connections-${self:provider.stage}
         AttributeDefinitions:
-          - AttributeName: connectionId
-            AttributeType: S
-          - AttributeName: roomId
+          - AttributeName: key
             AttributeType: S
         KeySchema:
-          - AttributeName: connectionId
+          - AttributeName: key
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        GlobalSecondaryIndexes:
-          - IndexName: roomId-index
-            KeySchema:
-              - AttributeName: roomId
-                KeyType: HASH
-            ProvisionedThroughput:
-              ReadCapacityUnits: 1
-              WriteCapacityUnits: 1
-            Projection:
-              ProjectionType: ALL
+        # GlobalSecondaryIndexes:
+        #   - IndexName: roomId-index
+        #     KeySchema:
+        #       - AttributeName: roomId
+        #         KeyType: HASH
+        #     ProvisionedThroughput:
+        #       ReadCapacityUnits: 1
+        #       WriteCapacityUnits: 1
+        #     Projection:
+        #       ProjectionType: ALL
         SSESpecification:
           SSEEnabled: False

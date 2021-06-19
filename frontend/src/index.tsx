@@ -5,12 +5,15 @@ import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 
 import AppRouter from "./router";
+import { Provider } from "./lib/RoomService/RoomService";
 
 import "./index.css";
 
 ReactDOM.render(
   <React.StrictMode>
-    <AppRouter />
+    <Provider>
+      <AppRouter />
+    </Provider>
   </React.StrictMode>,
   document.getElementById("root")
 );
