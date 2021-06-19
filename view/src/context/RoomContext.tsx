@@ -1,13 +1,10 @@
 /** @format */
 
 import { createCtx } from "../createCtx";
-import RoomManager from "../lib/RoomManager";
-import AppConnection from "../lib/webSocket";
+import { StrokeCommand } from "../lib/Stroke";
 
 type RoomContextValue = {
-  roomId: string;
-  connection: AppConnection;
-  roomManager: RoomManager;
+  sendStroke: (strokeCommand: StrokeCommand) => void;
 };
 
 export const [useRoomContext, RoomContextProvider] =

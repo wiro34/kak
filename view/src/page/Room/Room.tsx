@@ -1,40 +1,39 @@
 /** @format */
 
-import React, { useState } from "react";
+import React from "react";
 import AppHeader from "../../components/AppHeader/AppHeader";
 import PaintBoard from "../../components/PaintBoard/PaintBoard";
 import RemoteCanvas from "../../components/RemoteCanvas/RemoteCanvas";
-import AppConnection from "../../lib/webSocket";
 import { RoomContextProvider } from "../../context/RoomContext";
 import cls from "./Room.module.scss";
-import { Coordinate, StrokeStyle } from "../../lib/Stroke";
-import RoomManager from "../../lib/RoomManager";
+import useRoomService from "../../lib/RoomService";
 
 const Room = () => {
   const roomId = "test";
-  const [connection] = useState(new AppConnection(roomId));
-  const [roomContext, setRoomContext] = useState({
-    roomId,
-    connection,
-    roomManager: new RoomManager(connection),
-  });
-  const users = [{ name: "test1" }];
-
-  const onDraw = (strokeStyle: StrokeStyle, coordinates: Coordinate[]) => {
-    roomContext.connection.draw(strokeStyle, coordinates);
-  };
+  const { users, sendStroke } = useRoomService(roomId);
+  // const [connection] = useState(new AppConnection(roomId));
+  // const [roomContext, setRoomContext] = useState({
+  //   roomId,
+  //   connection,
+  //   roomManager: new RoomManager(connection),
+  // });
 
   return (
-    <RoomContextProvider value={roomContext}>
+    <RoomContextProvider value={{ sendStroke }}>
       <div className="App">
         <AppHeader roomId={roomId} />
         <main>
-          <PaintBoard onDraw={onDraw} />
+          <PaintBoard />
         </main>
         <section className={cls.connectedUsersPane}>
           {users.map((user) => (
             <div key={user.name}>
-              <RemoteCanvas userName={user.name} width={160} height={120} />
+              <RemoteCanvas
+                userName={user.name}
+                strokeList={user.strokeList}
+                width={640}
+                height={480}
+              />
             </div>
           ))}
         </section>

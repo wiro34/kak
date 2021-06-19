@@ -3,7 +3,6 @@
 import clsx from "clsx";
 import React, { useCallback, useState } from "react";
 import {
-  Brush,
   DEFAULT_STROKE_STYLE,
   StrokeStyle,
   UsableBrushes,
