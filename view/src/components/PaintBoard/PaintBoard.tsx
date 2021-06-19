@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import { useCallback } from "react";
 import DrawableCanvas from "../../components/DrawableCanvas/DrawableCanvas";
 import PaletteBoard from "../../components/Palette/Palette";
-import { useRoomContext } from "../../context/RoomContext";
+import { useRoomContext } from "../../hooks/RoomService";
 import { DEFAULT_STROKE_STYLE, Stroke, StrokeStyle } from "../../lib/Stroke";
+import OverlayToolbar from "../OverlayToolbar/OverlayToolbar";
 import cls from "./PaintBoard.module.scss";
 
 const PaintBoard = function () {
@@ -27,11 +28,14 @@ const PaintBoard = function () {
   return (
     <div className={cls.paintBoard}>
       <PaletteBoard changePalette={(p) => setStrokeStyle(p)} />
-      <DrawableCanvas
-        strokeStyle={strokeStyle}
-        onStroke={onStroke}
-        onUndo={onUndo}
-      />
+      <div className={cls.canvasContainer}>
+        <OverlayToolbar />
+        <DrawableCanvas
+          strokeStyle={strokeStyle}
+          onStroke={onStroke}
+          onUndo={onUndo}
+        />
+      </div>
     </div>
   );
 };

@@ -1,0 +1,28 @@
+/** @format */
+
+.container {
+  position: absolute;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  opacity: 0.5;
+  background-color: rgba(128, 128, 128, 0.2);
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  border-radius: 0 0 5px 0;
+  padding: 5px;
+}
+
+.iconButton {
+  cursor: pointer;
+  color: #0255bd;
+}
+
+.active {
+  opacity: 1;
+}
+
+.inactive {
+  opacity: 0.2;
+}

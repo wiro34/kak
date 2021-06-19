@@ -4,22 +4,23 @@ import React from "react";
 import AppHeader from "../../components/AppHeader/AppHeader";
 import PaintBoard from "../../components/PaintBoard/PaintBoard";
 import RemoteCanvas from "../../components/RemoteCanvas/RemoteCanvas";
-import { RoomContextProvider } from "../../context/RoomContext";
+import useRoomService, { RoomContextProvider } from "../../hooks/RoomService";
 import cls from "./Room.module.scss";
-import useRoomService from "../../lib/RoomService";
 
 const Room = () => {
   const roomId = "test";
-  const { users, sendStroke } = useRoomService(roomId);
+  const context = useRoomService(roomId);
+  const { users } = context;
   // const [connection] = useState(new AppConnection(roomId));
   // const [roomContext, setRoomContext] = useState({
   //   roomId,
   //   connection,
   //   roomManager: new RoomManager(connection),
   // });
+  console.log("Room", users);
 
   return (
-    <RoomContextProvider value={{ sendStroke }}>
+    <RoomContextProvider value={context}>
       <div className="App">
         <AppHeader roomId={roomId} />
         <main>
@@ -33,6 +34,7 @@ const Room = () => {
                 strokeList={user.strokeList}
                 width={640}
                 height={480}
+                visible={user.visible}
               />
             </div>
           ))}

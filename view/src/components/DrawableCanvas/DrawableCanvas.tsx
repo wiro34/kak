@@ -76,11 +76,9 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
         stopDraw(event);
       }
       const coordinate = getCoordinate(event);
-      if (coordinate) {
-        drawing = true;
-        lastPoint = coordinate;
-        stroke = { style: strokeStyle, path: [coordinate] };
-      }
+      drawing = true;
+      lastPoint = coordinate;
+      stroke = { style: strokeStyle, path: [coordinate] };
     };
     const stopDraw = (event: MouseEvent) => {
       if (stroke) {
@@ -96,7 +94,7 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
     const doDrawing = (event: MouseEvent) => {
       if (drawing) {
         const coordinate = getCoordinate(event);
-        if (coordinate && lastPoint) {
+        if (lastPoint) {
           if (stroke) {
             stroke.path.push(coordinate);
           }
@@ -109,7 +107,7 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
     const enterDraw = (event: MouseEvent) => {
       if (leaveInDrawing) {
         lastPoint = getCoordinate(event);
-        if (stroke && lastPoint) {
+        if (stroke) {
           stroke.path.push(lastPoint);
         }
         drawing = true;
@@ -119,7 +117,7 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
     const leaveDraw = (event: MouseEvent) => {
       if (drawing) {
         lastPoint = getCoordinate(event);
-        if (stroke && lastPoint) {
+        if (stroke) {
           stroke.path.push(lastPoint);
         }
         leaveInDrawing = true;
@@ -159,15 +157,10 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
       context.stroke();
     };
 
-    const getCoordinate = (event: MouseEvent): Coordinate | undefined => {
-      if (!canvasRef.current) {
-        return;
-      }
-
-      const canvas: HTMLCanvasElement = canvasRef.current;
+    const getCoordinate = (event: MouseEvent): Coordinate => {
       return {
-        x: event.pageX - canvas.offsetLeft,
-        y: event.pageY - canvas.offsetTop,
+        x: event.offsetX,
+        y: event.offsetY,
       };
     };
 
