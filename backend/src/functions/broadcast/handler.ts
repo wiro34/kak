@@ -2,7 +2,7 @@
 
 import "source-map-support/register";
 
-import { NotFoundResult, sendMessage, ValidatedAPIGatewayProxyHandler } from "@libs/apiGateway";
+import { sendMessage, ValidatedAPIGatewayProxyHandler } from "@libs/apiGateway";
 import { middyfy } from "@libs/lambda";
 import Schema from "./schema";
 import { APIGatewayProxyResult } from "aws-lambda";
@@ -15,19 +15,6 @@ export type UserData = {
   strokeList: string[];
   visible: boolean;
 };
-
-export function roomNotFound(roomId: string) {
-  return {
-    message: "roomNotFound",
-    payload: { roomId },
-  };
-}
-export function roomJoined(roomId: string, nickname: string, users: UserData[]) {
-  return {
-    message: "roomJoined",
-    payload: { roomId, you: nickname, users },
-  };
-}
 
 /**
  * ブロードキャストするメッセージ送信
@@ -43,7 +30,6 @@ const broadcast: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promis
   const {
     payload: { roomId, type, data },
   } = event.body;
-  console.log(event.body);
   if (!roomId) {
     return { statusCode: 400, body: "Room id is empty" };
   }
@@ -63,30 +49,31 @@ const broadcast: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promis
   const res = await dynamodb.query(queryParams).promise();
   if (!res.Count || res.Count === 0 || !res.Items) {
     throw new Error("Room data are not found");
-    // await sendMessage(event.requestContext, roomNotFound(roomId));
-    // return new NotFoundResult(`Room id is already used: roomId=${roomId}`);
   }
-  console.log(connectionId, res);
 
-  // 描画ならDBに追加
+  const myData = res.Items.find((item) => item.connectionId === connectionId) as RoomData | undefined;
+  if (!myData) {
+    throw new Error("My Data not found");
+  }
   if (type === "draw") {
-    const myData = res.Items.find((item) => item.connectionId === connectionId) as RoomData | undefined;
-    if (!myData) {
-      throw new Error("My Data not found");
-    }
-    const roomData: RoomData = { ...myData, strokeList: [...myData.strokeList, (data as any).strokeCommand] };
+    // ストロークを DB に追加
     const putParams: DynamoDB.DocumentClient.PutItemInput = {
       TableName: TABLE_NAME,
-      Item: roomData,
+      Item: { ...myData, strokeList: [...myData.strokeList, (data as any).strokeCommand] },
+    };
+    await dynamodb.put(putParams).promise();
+  } else if (type === "clear") {
+    // DB をクリア
+    const putParams: DynamoDB.DocumentClient.PutItemInput = {
+      TableName: TABLE_NAME,
+      Item: { ...myData, strokeList: [] },
     };
     await dynamodb.put(putParams).promise();
   }
 
   // ブロードキャスト
   const promiseList = res.Items.map((item) => {
-    console.log(item.connectionId, connectionId);
     if (item.connectionId !== connectionId) {
-      console.log("SEND!!");
       return sendMessage(event.requestContext, item.connectionId, event.body);
     }
   });

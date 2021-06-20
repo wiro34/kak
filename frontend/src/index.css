@@ -11,9 +11,11 @@ body {
   margin: 0;
   padding: 0;
 
+  background: linear-gradient(170deg, rgba(71, 97, 173, 1) 0%, rgba(64, 183, 167, 1) 100%);
+  background-attachment: fixed;
+
   color: #ffffff;
 
-  background: linear-gradient(170deg, rgba(71, 97, 173, 1) 0%, rgba(64, 183, 167, 1) 100%);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
     "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;

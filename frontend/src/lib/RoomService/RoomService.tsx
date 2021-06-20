@@ -7,7 +7,7 @@ import { CommandType, Role, RoomId, SendMessagePayload, UserData, UserName } fro
 import { RoomContextProvider } from "./context";
 import { Message, newConnection, RawUserData } from "./connection";
 import Sockette from "sockette";
-import { useMutableCallback } from "../../hooks/mutableCallback";
+import { useMutableCallback } from "../../hooks/useMutableCallback";
 
 export type RoomServiceResponse = {
   connected: boolean;
@@ -15,7 +15,8 @@ export type RoomServiceResponse = {
   createRoom: (name: UserName) => Promise<RoomId>;
   joinRoom: (name: UserName, roomId: RoomId) => Promise<RoomId>;
   sendStroke: (strokeCommand: StrokeCommand) => void;
-  changeVisibility: (visible: boolean) => void;
+  sendClear: () => void;
+  sendChangeVisibility: (visible: boolean) => void;
 };
 
 type RoomState = {
@@ -65,13 +66,12 @@ const useRoomService = (): RoomServiceResponse => {
     });
   };
 
-  const recvStroke = useMutableCallback((nickname: UserName, stroke: string) => {
+  const recvDraw = useMutableCallback((nickname: UserName, stroke: string) => {
     const user = roomState.users.find((u) => u.name === nickname);
     if (user) {
       const rest = roomState.users.filter((u) => u.name !== nickname);
       const strokeCommand = parseStrokeCommand(stroke);
       if (strokeCommand.command === "draw") {
-        console.log("recvStroke", user);
         user.strokeList.push(strokeCommand.stroke);
       } else {
         user.strokeList.pop();
@@ -80,16 +80,21 @@ const useRoomService = (): RoomServiceResponse => {
     }
   });
 
-  const recvChangeVisibility = useCallback(
-    (name: UserName, visible: boolean) => {
-      // const user = users.find((u) => u.name === name);
-      // if (user) {
-      //   const rest = users.filter((u) => u.name !== name);
-      //   setUsers([...rest, { ...user, visible }]);
-      // }
-    },
-    [roomState, setRoomState]
-  );
+  const recvClear = useMutableCallback((nickname: UserName) => {
+    const user = roomState.users.find((u) => u.name === nickname);
+    if (user) {
+      const rest = roomState.users.filter((u) => u.name !== nickname);
+      setRoomState({ ...roomState, users: [...rest, { ...user, strokeList: [] }] });
+    }
+  });
+
+  const recvChangeVisibility = useMutableCallback((nickname: UserName, visible: boolean) => {
+    const user = roomState.users.find((u) => u.name === nickname);
+    if (user) {
+      const rest = roomState.users.filter((u) => u.name !== nickname);
+      setRoomState({ ...roomState, users: [...rest, { ...user, visible }] });
+    }
+  });
 
   const onReceiveSendMessage = (payload: SendMessagePayload) => {
     switch (payload.type) {
@@ -100,7 +105,10 @@ const useRoomService = (): RoomServiceResponse => {
       //   setUsers(users.filter((u) => u.name !== payload.data.nickname));
       //   break;
       case "draw":
-        recvStroke(payload.data.nickname, payload.data.strokeCommand);
+        recvDraw(payload.data.nickname, payload.data.strokeCommand);
+        break;
+      case "clear":
+        recvClear(payload.data.nickname);
         break;
       case "changeVisibility":
         recvChangeVisibility(payload.data.nickname, payload.data.visible);
@@ -161,16 +169,28 @@ const useRoomService = (): RoomServiceResponse => {
     sendCommand("broadcast", data);
   };
 
-  const changeVisibility = useCallback(
-    (visible: boolean) => {
-      // for debug
-      // onReceiveMessage({
-      //   type: "changeVisibility",
-      //   data: { name: "foobar", visible },
-      // });
-    },
-    [roomState, setRoomState, recvStroke, recvChangeVisibility]
-  );
+  const sendClear = () => {
+    const data: SendMessagePayload = {
+      roomId: roomState.roomId,
+      type: "clear",
+      data: {
+        nickname: roomState.name,
+      },
+    };
+    sendCommand("broadcast", data);
+  };
+
+  const sendChangeVisibility = (visible: boolean) => {
+    const data: SendMessagePayload = {
+      roomId: roomState.roomId,
+      type: "changeVisibility",
+      data: {
+        nickname: roomState.name,
+        visible,
+      },
+    };
+    sendCommand("broadcast", data);
+  };
 
   useEffect(() => {
     conn.current = newConnection(
@@ -188,9 +208,6 @@ const useRoomService = (): RoomServiceResponse => {
     );
     console.log("RoomService initialized!!!");
 
-    // for debug
-    // onReceiveMessage({ type: "connect", data: { name: "foobar" } });
-
     return () => {
       if (conn.current) {
         conn.current.close();
@@ -207,7 +224,7 @@ const useRoomService = (): RoomServiceResponse => {
     // eslint-disable-next-line
   }, []);
 
-  return { connected, roomState, createRoom, joinRoom, sendStroke, changeVisibility };
+  return { connected, roomState, createRoom, joinRoom, sendStroke, sendClear, sendChangeVisibility };
 };
 
 // export default useRoomService;

@@ -1,4 +1,13 @@
 /** @format */
 
-.connectedUsersPane {
+.connectedUsersPanel {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  margin: 0 100px;
+
+  & > div {
+    width: 23%;
+  }
 }

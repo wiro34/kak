@@ -10,12 +10,12 @@ import { useRoomContext } from "../../lib/RoomService/context";
 import cls from "./OverlayToolbar.module.scss";
 
 const OverlayToolbar = function () {
-  const { changeVisibility } = useRoomContext();
+  const { sendChangeVisibility } = useRoomContext();
   const [visible, setVisible] = useState(true);
   const toggleHideCanvas = useCallback(() => {
     setVisible(!visible);
-    changeVisibility(!visible);
-  }, [visible, setVisible, changeVisibility]);
+    sendChangeVisibility(!visible);
+  }, [visible, setVisible, sendChangeVisibility]);
   return (
     <div className={cls.container}>
       <Tooltip text={visible ? "非公開にする" : "公開する"}>

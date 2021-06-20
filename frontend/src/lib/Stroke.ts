@@ -5,14 +5,7 @@ export type Stroke = {
   path: Coordinate[];
 };
 
-export type StrokeCommand =
-  | {
-      command: "draw";
-      stroke: Stroke;
-    }
-  | {
-      command: "undo";
-    };
+export type StrokeCommand = { command: "draw"; stroke: Stroke } | { command: "undo" };
 
 export type Coordinate = {
   x: number;

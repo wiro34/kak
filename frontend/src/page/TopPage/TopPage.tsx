@@ -19,7 +19,7 @@ const TopPage = () => {
       setCookie("nickname", name);
       history.push(`./room/${roomId}`);
     }
-  }, [createRoom, name]);
+  }, [createRoom, name, setCookie, history]);
 
   return (
     <div className={cls.container}>

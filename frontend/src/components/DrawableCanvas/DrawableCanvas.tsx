@@ -1,24 +1,34 @@
 /** @format */
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import cls from "./DrawableCanvas.module.scss";
+import { createTrigger, useTriggerEffect } from "../../hooks/useTrigger";
 import { Coordinate, Stroke, StrokeStyle } from "../../lib/Stroke";
+import cls from "./DrawableCanvas.module.scss";
+
+/**
+ * DrawableCanvas コンポーネント外から Undo を実行するためのトリガ
+ */
+export const undoTrigger = createTrigger();
+
+/**
+ * DrawableCanvas コンポーネント外から Clear を実行するためのトリガ
+ */
+export const clearTrigger = createTrigger();
 
 type Props = {
   strokeStyle: StrokeStyle;
   initialStrokeList: Stroke[];
   onStroke?: (stroke: Stroke) => void;
   onUndo?: () => void;
+  onClear?: () => void;
 };
 
 /**
  * 描き込みできる Canvas
  */
-const DrawableCanvas = function ({ strokeStyle, initialStrokeList, onStroke, onUndo }: Props) {
+const DrawableCanvas = function ({ strokeStyle, initialStrokeList, onStroke, onUndo, onClear }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [strokeList, setStrokeList] = useState<Stroke[]>(initialStrokeList);
-
-  // console.log("update canvas", initialStrokeList);
 
   const refleshCanvas = useCallback(
     (currentStroke?: Stroke) => {
@@ -61,7 +71,15 @@ const DrawableCanvas = function ({ strokeStyle, initialStrokeList, onStroke, onU
       onUndo();
     }
     refleshCanvas();
-  }, [onUndo, strokeList, refleshCanvas]);
+  }, [onUndo, strokeList, setStrokeList, refleshCanvas]);
+
+  const clear = useCallback(() => {
+    setStrokeList([]);
+    if (onClear) {
+      onClear();
+    }
+    refleshCanvas();
+  }, [onClear, setStrokeList, refleshCanvas]);
 
   useEffect(() => {
     if (!canvasRef.current) {
@@ -181,10 +199,17 @@ const DrawableCanvas = function ({ strokeStyle, initialStrokeList, onStroke, onU
     };
   }, [onStroke, onUndo, strokeList, setStrokeList, strokeStyle, undo, refleshCanvas]);
 
+  useTriggerEffect(() => {
+    undo();
+  }, undoTrigger);
+
+  useTriggerEffect(() => {
+    clear();
+  }, clearTrigger);
+
   return (
     <div>
       <canvas tabIndex={1} width="640" height="480" ref={canvasRef} className={cls.canvas}></canvas>
-      <button onClick={undo}>undo</button>
     </div>
   );
 };

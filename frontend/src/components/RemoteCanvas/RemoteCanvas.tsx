@@ -55,7 +55,7 @@ const RemoteCanvas = function ({ userName, strokeList, width, height, visible }:
   return (
     <div className={cls.container}>
       <span className={cls.userName}>{userName}</span>
-      <canvas tabIndex={1} width={width} height={height} ref={canvasRef} className={cls.canvas}></canvas>
+      <canvas tabIndex={1} width={width} height={height} ref={canvasRef} className={cls.canvas} />
       <div
         className={clsx({
           [cls.hiddenOverlay]: true,

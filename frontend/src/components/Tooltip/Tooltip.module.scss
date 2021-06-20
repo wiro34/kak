@@ -20,6 +20,8 @@
   color: #ffffff;
   border-radius: 3px;
   transition: 0.2s ease-in;
+
+  z-index: 1000;
 }
 
 .tooltip:hover .tooltipText {

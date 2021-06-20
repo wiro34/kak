@@ -30,7 +30,7 @@ const Room = ({ match }: Props) => {
         }
       }
     })();
-  }, [connected]);
+  }, [connected, roomId, cookies.nickname, joinRoom, match.params.roomId]);
 
   if (!roomId) {
     if (!cookies.nickname) {
@@ -46,7 +46,7 @@ const Room = ({ match }: Props) => {
       <main>
         <PaintBoard />
       </main>
-      <section className={cls.connectedUsersPane}>
+      <section className={cls.connectedUsersPanel}>
         {others.map((user) => (
           <div key={user.name}>
             <RemoteCanvas
