@@ -66,5 +66,6 @@ export function useTriggerEffect(callback: () => void, trigger: Trigger) {
     if (triggerValue > 0) {
       callback();
     }
-  }, [callback, triggerValue]);
+    // eslint-disable-next-line
+  }, [triggerValue]);
 }

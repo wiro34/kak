@@ -26,22 +26,23 @@ export function roomCreated(roomId) {
 const onConnect: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promise<APIGatewayProxyResult> => {
   const { TABLE_NAME } = process.env;
 
-  // TODO:
-  if (typeof event.body === "string") {
-    console.log("WARN: event.body is string.");
-    event.body = JSON.parse(event.body as any) as Schema;
-  }
-
-  // const {
-  //   payload: { name, roomId },
-  // } = event.body;
-  // if (!name || !roomId) {
-  //   return { statusCode: 400, body: "Name or room id is empty" };
+  // // TODO:
+  // if (typeof event.body === "string") {
+  //   console.log("WARN: event.body is string.");
+  //   event.body = JSON.parse(event.body as any) as Schema;
   // }
+  // console.log(event.body);
+
+  // // const {
+  // //   payload: { name, roomId },
+  // // } = event.body;
+  // // if (!name || !roomId) {
+  // //   return { statusCode: 400, body: "Name or room id is empty" };
+  // // }
   const connectionId = event.requestContext.connectionId;
 
   // console.log(TABLE_NAME);
-  console.log("$connect", connectionId);
+  console.log("$disconnect", connectionId);
 
   // // 既に存在するかチェック
   // const getParams = {

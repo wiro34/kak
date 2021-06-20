@@ -25,6 +25,8 @@ type Props = {
 
 /**
  * 描き込みできる Canvas
+ *
+ * TODO: 画面外でマウスクリックやめたときに描くのをやめる
  */
 const DrawableCanvas = function ({ strokeStyle, initialStrokeList, onStroke, onUndo, onClear }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

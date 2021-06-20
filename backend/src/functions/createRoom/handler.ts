@@ -15,10 +15,10 @@ import { DynamoDB } from "aws-sdk";
 import { dynamodb } from "@libs/dynamodb";
 import { RoomData } from "@libs/models";
 
-export function roomCreated(roomId) {
+export function roomCreated(roomId, nickname) {
   return {
     message: "roomCreated",
-    payload: { roomId },
+    payload: { roomId, myname: nickname },
   };
 }
 
@@ -75,7 +75,7 @@ const createRoom: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promi
       Item: roomData,
     };
     await dynamodb.put(putParams).promise();
-    await responseMessage(event.requestContext, roomCreated(roomId));
+    await responseMessage(event.requestContext, roomCreated(roomId, name));
   } catch (err) {
     console.error(err);
     return new InternalServerErrorResult("Failed to connect: " + JSON.stringify(err));

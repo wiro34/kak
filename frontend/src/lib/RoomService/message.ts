@@ -10,7 +10,7 @@ export type CommandType = "createRoom" | "joinRoom" | "broadcast";
 /**
  * 各ユーザにブロードキャストするメッセージの型
  */
-export type SendMessagePayload =
+export type BroadcastPayload =
   | { roomId: string; type: "draw"; data: { nickname: UserName; strokeCommand: string } }
   | { roomId: string; type: "clear"; data: { nickname: UserName } }
   | { roomId: string; type: "changeVisibility"; data: { nickname: UserName; visible: boolean } };

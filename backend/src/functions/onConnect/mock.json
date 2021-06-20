@@ -1,8 +1,0 @@
-{
-  "requestContext": {
-    "connectionId": "mockedCnnctId",
-    "domainName":"em08go6hs8.execute-api.us-east-2.amazonaws.com",
-    "stage":"dev"
-  },
-  "body": "{\"message\":\"createRoom\", \"data\":{\"name\": \"test\", \"roomId\": \"ROOMID\"}}"
-}

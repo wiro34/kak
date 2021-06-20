@@ -30,7 +30,7 @@ const Room = ({ match }: Props) => {
         }
       }
     })();
-  }, [connected, roomId, cookies.nickname, joinRoom, match.params.roomId]);
+  }, [connected, roomId, name, cookies.nickname, joinRoom, match.params.roomId]);
 
   if (!roomId) {
     if (!cookies.nickname) {

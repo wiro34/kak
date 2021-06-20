@@ -1,9 +1,8 @@
+/** @format */
+
 /**
  * DynamoDB に登録するデータレコード型
- *
- * @format
  */
-
 export type RoomData = {
   roomId: string;
   nickname: string;

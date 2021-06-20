@@ -16,16 +16,22 @@ export type UserData = {
   visible: boolean;
 };
 
-export function roomNotFound(roomId: string) {
+function roomNotFound(roomId: string) {
   return {
     message: "roomNotFound",
     payload: { roomId },
   };
 }
-export function roomJoined(roomId: string, nickname: string, users: UserData[]) {
+function roomJoined(roomId: string, nickname: string, users: UserData[]) {
   return {
     message: "roomJoined",
-    payload: { roomId, you: nickname, users },
+    payload: { roomId, myname: nickname, users },
+  };
+}
+function userJoined(roomId: string, user: UserData) {
+  return {
+    message: "userJoined",
+    payload: { roomId, user },
   };
 }
 
@@ -91,6 +97,7 @@ const joinRoom: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promise
   const putParams: DynamoDB.DocumentClient.PutItemInput = {
     TableName: TABLE_NAME,
     Item: roomData,
+    // TODO: ReturnConsumedCapacity
   };
   await dynamodb.put(putParams).promise();
 
@@ -104,9 +111,21 @@ const joinRoom: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promise
   await responseMessage(event.requestContext, roomJoined(roomId, nickname, users));
 
   // 他のユーザに参加者を通知する
-  res.Items.filter((item) => item.roomId !== roomId).forEach((item) => {
-    // await sendMessage(item.connectionId, roomJoined(roomId, users));
+  const promiseList = res.Items.map(async (item) => {
+    if (item.nickname !== nickname) {
+      try {
+        await sendMessage(event.requestContext, item.connectionId, userJoined(roomId, roomData));
+      } catch (e) {
+        if (e.statusCode === 410) {
+          console.log(`Connection was staled, deleting ${item.connectionId}`);
+          return dynamodb.delete({ TableName: TABLE_NAME, Key: { roomId, nickname: item.nickname } }).promise();
+        } else {
+          throw e;
+        }
+      }
+    }
   });
+  await Promise.all(promiseList);
 
   return { statusCode: 200, body: "Data sent." };
 };

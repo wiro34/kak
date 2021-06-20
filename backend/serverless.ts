@@ -3,6 +3,7 @@
 import type { AWS } from "@serverless/typescript";
 
 import onConnect from "@functions/onConnect";
+import onDisconnect from "@functions/onDisconnect";
 import createRoom from "@functions/createRoom";
 import joinRoom from "@functions/joinRoom";
 import broadcast from "@functions/broadcast";
@@ -53,7 +54,7 @@ const serverlessConfiguration: AWS = {
   },
 
   // import the function via paths
-  functions: { onConnect, createRoom, joinRoom, broadcast },
+  functions: { onConnect, onDisconnect, createRoom, joinRoom, broadcast },
 
   resources: {
     Resources: {

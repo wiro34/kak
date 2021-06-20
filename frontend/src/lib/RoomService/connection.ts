@@ -2,7 +2,7 @@
 
 import Sockette from "sockette";
 import { WS_API_URL, WS_MAX_ATTEMPTS, WS_TIMEOUT } from "../../config";
-import { Role, SendMessagePayload } from "./message";
+import { Role, BroadcastPayload } from "./message";
 
 export type RawUserData = {
   nickname: string;
@@ -12,10 +12,11 @@ export type RawUserData = {
 };
 
 export type Message =
-  | { message: "roomCreated"; payload: { roomId: string } }
-  | { message: "roomJoined"; payload: { roomId: string; you: string; users: RawUserData[] } }
+  | { message: "roomCreated"; payload: { roomId: string; myname: string } }
+  | { message: "roomJoined"; payload: { roomId: string; myname: string; users: RawUserData[] } }
   | { message: "roomNotFound"; payload: { roomId: string } }
-  | { message: "broadcast"; payload: SendMessagePayload };
+  | { message: "userJoined"; payload: { roomId: string; user: RawUserData } }
+  | { message: "broadcast"; payload: BroadcastPayload };
 
 export function newConnection(
   onReceiveMessage: (e: Message) => void,

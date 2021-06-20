@@ -9,6 +9,7 @@ import { APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 import { dynamodb } from "@libs/dynamodb";
 import { RoomData } from "@libs/models";
+import { broadcastMessage } from "@libs/broadcast";
 
 export type UserData = {
   nickname: string;
@@ -72,12 +73,7 @@ const broadcast: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promis
   }
 
   // ブロードキャスト
-  const promiseList = res.Items.map((item) => {
-    if (item.connectionId !== connectionId) {
-      return sendMessage(event.requestContext, item.connectionId, event.body);
-    }
-  });
-  await Promise.all(promiseList);
+  await broadcastMessage(event.requestContext, event.body, roomId, myData.nickname, res.Items as RoomData[]);
 
   return { statusCode: 200, body: "Data sent." };
 };

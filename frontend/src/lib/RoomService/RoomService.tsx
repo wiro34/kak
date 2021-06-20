@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 // import Sockette from "sockette";
 import { parseStrokeCommand, stringifyStrokeCommand, StrokeCommand, strokeCommandToStrokeList } from "../Stroke";
-import { CommandType, Role, RoomId, SendMessagePayload, UserData, UserName } from "./message";
+import { CommandType, Role, RoomId, BroadcastPayload, UserData, UserName } from "./message";
 import { RoomContextProvider } from "./context";
 import { Message, newConnection, RawUserData } from "./connection";
 import Sockette from "sockette";
@@ -38,7 +38,7 @@ const useRoomService = (): RoomServiceResponse => {
   const joinRoomPromiseFn = useRef<any>();
   const conn = useRef<Sockette>();
 
-  console.log("DEBUG: Update useRoomService");
+  // console.log("DEBUG: Update useRoomService");
 
   const sendCommand = useCallback(
     (commandType: CommandType, payload: any) => {
@@ -53,7 +53,6 @@ const useRoomService = (): RoomServiceResponse => {
     // とりあえず適当なものを作成 UUID ほどユニークさは求めない
     const roomId = Math.random().toString(32).substring(2);
     sendCommand("createRoom", { name, roomId });
-    setRoomState({ ...roomState, name });
     return new Promise((resolve, reject) => {
       createRoomPromiseFn.current = { resolve, reject };
     });
@@ -96,14 +95,19 @@ const useRoomService = (): RoomServiceResponse => {
     }
   });
 
-  const onReceiveSendMessage = (payload: SendMessagePayload) => {
+  const recvUserJoined = useMutableCallback((payload: { user: RawUserData }) => {
+    const user = payload.user;
+    const found = roomState.users.find((u) => u.name === user.nickname);
+    if (found) {
+      // TODO: 既にいた場合の対応
+    } else {
+      const userData = convertRawUserDataToUserData([user])[0];
+      setRoomState({ ...roomState, users: [...roomState.users, userData] });
+    }
+  });
+
+  const onReceiveSendMessage = (payload: BroadcastPayload) => {
     switch (payload.type) {
-      // case "connect":
-      //   setUsers([...users, { name: payload.data.nickname, strokeList: [], visible: true }]);
-      //   break;
-      // case "disconnect":
-      //   setUsers(users.filter((u) => u.name !== payload.data.nickname));
-      //   break;
       case "draw":
         recvDraw(payload.data.nickname, payload.data.strokeCommand);
         break;
@@ -119,7 +123,18 @@ const useRoomService = (): RoomServiceResponse => {
   const onReceiveMessage = (message: Message) => {
     switch (message.message) {
       case "roomCreated":
-        setRoomState({ ...roomState, roomId: message.payload.roomId, role: "owner", users: [] });
+        const mydata: UserData = {
+          name: message.payload.myname,
+          strokeList: [],
+          visible: true,
+        };
+        setRoomState({
+          ...roomState,
+          name: message.payload.myname,
+          roomId: message.payload.roomId,
+          role: "owner",
+          users: [mydata],
+        });
         if (createRoomPromiseFn.current) {
           const { resolve } = createRoomPromiseFn.current;
           resolve(message.payload.roomId);
@@ -129,7 +144,7 @@ const useRoomService = (): RoomServiceResponse => {
         if (joinRoomPromiseFn.current) {
           const { resolve, reject } = joinRoomPromiseFn.current;
           const users = message.payload.users;
-          const you = users.find((user) => user.nickname === message.payload.you);
+          const you = users.find((user) => user.nickname === message.payload.myname);
           if (you) {
             setRoomState({
               roomId: message.payload.roomId,
@@ -143,6 +158,9 @@ const useRoomService = (): RoomServiceResponse => {
             reject("ERROR: roomJoined");
           }
         }
+        break;
+      case "userJoined":
+        recvUserJoined(message.payload);
         break;
       case "roomNotFound":
         if (joinRoomPromiseFn.current) {
@@ -158,7 +176,7 @@ const useRoomService = (): RoomServiceResponse => {
 
   const sendStroke = (strokeCommand: StrokeCommand) => {
     // TODO: バッファリング必要？
-    const data: SendMessagePayload = {
+    const data: BroadcastPayload = {
       roomId: roomState.roomId,
       type: "draw",
       data: {
@@ -170,7 +188,7 @@ const useRoomService = (): RoomServiceResponse => {
   };
 
   const sendClear = () => {
-    const data: SendMessagePayload = {
+    const data: BroadcastPayload = {
       roomId: roomState.roomId,
       type: "clear",
       data: {
@@ -181,7 +199,7 @@ const useRoomService = (): RoomServiceResponse => {
   };
 
   const sendChangeVisibility = (visible: boolean) => {
-    const data: SendMessagePayload = {
+    const data: BroadcastPayload = {
       roomId: roomState.roomId,
       type: "changeVisibility",
       data: {
@@ -193,13 +211,15 @@ const useRoomService = (): RoomServiceResponse => {
   };
 
   useEffect(() => {
-    conn.current = newConnection(
+    const sockette = newConnection(
       onReceiveMessage,
       (e) => {
         setConnected(true);
+        conn.current = sockette;
       },
       (e) => {
         setConnected(false);
+        conn.current = undefined;
       },
       (e) => {
         setConnected(false);
