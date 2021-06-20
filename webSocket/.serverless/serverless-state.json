@@ -235,7 +235,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/kak-backend/dev/1624123155774-2021-06-19T17:19:15.774Z/kak-backend.zip"
+                "S3Key": "serverless/kak-backend/dev/1624130403138-2021-06-19T19:20:03.138Z/kak-backend.zip"
               },
               "Handler": "onDisconnect/app.handler",
               "Runtime": "nodejs14.x",
@@ -267,7 +267,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/kak-backend/dev/1624123155774-2021-06-19T17:19:15.774Z/kak-backend.zip"
+                "S3Key": "serverless/kak-backend/dev/1624130403138-2021-06-19T19:20:03.138Z/kak-backend.zip"
               },
               "Handler": "createRoom/index.handler",
               "Runtime": "nodejs14.x",
@@ -299,7 +299,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/kak-backend/dev/1624123155774-2021-06-19T17:19:15.774Z/kak-backend.zip"
+                "S3Key": "serverless/kak-backend/dev/1624130403138-2021-06-19T19:20:03.138Z/kak-backend.zip"
               },
               "Handler": "sendMessage/app.handler",
               "Runtime": "nodejs14.x",
@@ -324,34 +324,34 @@
               "SendMessageHandlerLogGroup"
             ]
           },
-          "DisconnectHandlerLambdaVersionlHkCwjo0snslPZSLWvX9P3Z2tXtudBw6b3xvSNK4": {
+          "DisconnectHandlerLambdaVersionCcsnXI2vg6mZvxZIDEPOab9qXt0lw1LwLklPL60Y": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "DisconnectHandlerLambdaFunction"
               },
-              "CodeSha256": "5YLj7sRWQEZNlmnBkUhgGkVT+2tJcpA5hFCgXnryyUE="
+              "CodeSha256": "i1CGm5Tu0s4uslWllEk18DdMpMppR8kFF/2BK7W4M9Q="
             }
           },
-          "CreateRoomHandlerLambdaVersion2eFOR01dKY9ljkGJPW0l4C5KixGKYnMg2GCMCFxbsTU": {
+          "CreateRoomHandlerLambdaVersionr3xbEGWdkVkuRcPrVoJnW1FwOzW0RBeOx9XDYatIrf0": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateRoomHandlerLambdaFunction"
               },
-              "CodeSha256": "5YLj7sRWQEZNlmnBkUhgGkVT+2tJcpA5hFCgXnryyUE="
+              "CodeSha256": "i1CGm5Tu0s4uslWllEk18DdMpMppR8kFF/2BK7W4M9Q="
             }
           },
-          "SendMessageHandlerLambdaVersiondibJqKb3RKst6CiBAQgBHY2mDfRDlUFwnbsmVeTEs": {
+          "SendMessageHandlerLambdaVersionTRSsakWypWqG7eKdM7eqaFZ5RCeAHOMIw8RdPxnPQM": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "SendMessageHandlerLambdaFunction"
               },
-              "CodeSha256": "5YLj7sRWQEZNlmnBkUhgGkVT+2tJcpA5hFCgXnryyUE="
+              "CodeSha256": "i1CGm5Tu0s4uslWllEk18DdMpMppR8kFF/2BK7W4M9Q="
             }
           },
           "WebsocketsApi": {
@@ -638,7 +638,7 @@
           "DisconnectHandlerLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "DisconnectHandlerLambdaVersionlHkCwjo0snslPZSLWvX9P3Z2tXtudBw6b3xvSNK4"
+              "Ref": "DisconnectHandlerLambdaVersionCcsnXI2vg6mZvxZIDEPOab9qXt0lw1LwLklPL60Y"
             },
             "Export": {
               "Name": "sls-kak-backend-dev-DisconnectHandlerLambdaFunctionQualifiedArn"
@@ -647,7 +647,7 @@
           "CreateRoomHandlerLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateRoomHandlerLambdaVersion2eFOR01dKY9ljkGJPW0l4C5KixGKYnMg2GCMCFxbsTU"
+              "Ref": "CreateRoomHandlerLambdaVersionr3xbEGWdkVkuRcPrVoJnW1FwOzW0RBeOx9XDYatIrf0"
             },
             "Export": {
               "Name": "sls-kak-backend-dev-CreateRoomHandlerLambdaFunctionQualifiedArn"
@@ -656,7 +656,7 @@
           "SendMessageHandlerLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "SendMessageHandlerLambdaVersiondibJqKb3RKst6CiBAQgBHY2mDfRDlUFwnbsmVeTEs"
+              "Ref": "SendMessageHandlerLambdaVersionTRSsakWypWqG7eKdM7eqaFZ5RCeAHOMIw8RdPxnPQM"
             },
             "Export": {
               "Name": "sls-kak-backend-dev-SendMessageHandlerLambdaFunctionQualifiedArn"
@@ -789,7 +789,7 @@
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "DisconnectHandlerLambdaVersionlHkCwjo0snslPZSLWvX9P3Z2tXtudBw6b3xvSNK4"
+        "versionLogicalId": "DisconnectHandlerLambdaVersionCcsnXI2vg6mZvxZIDEPOab9qXt0lw1LwLklPL60Y"
       },
       "createRoomHandler": {
         "handler": "createRoom/index.handler",
@@ -804,7 +804,7 @@
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "CreateRoomHandlerLambdaVersion2eFOR01dKY9ljkGJPW0l4C5KixGKYnMg2GCMCFxbsTU"
+        "versionLogicalId": "CreateRoomHandlerLambdaVersionr3xbEGWdkVkuRcPrVoJnW1FwOzW0RBeOx9XDYatIrf0"
       },
       "sendMessageHandler": {
         "handler": "sendMessage/app.handler",
@@ -819,7 +819,7 @@
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "SendMessageHandlerLambdaVersiondibJqKb3RKst6CiBAQgBHY2mDfRDlUFwnbsmVeTEs"
+        "versionLogicalId": "SendMessageHandlerLambdaVersionTRSsakWypWqG7eKdM7eqaFZ5RCeAHOMIw8RdPxnPQM"
       }
     },
     "resources": {
@@ -873,7 +873,7 @@
     "artifact": "/home/toru/kak/webSocket/.serverless/kak-backend.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/kak-backend/dev/1624123155774-2021-06-19T17:19:15.774Z",
+    "artifactDirectoryName": "serverless/kak-backend/dev/1624130403138-2021-06-19T19:20:03.138Z",
     "artifact": "kak-backend.zip"
   }
 }

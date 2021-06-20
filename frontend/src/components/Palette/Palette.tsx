@@ -2,12 +2,7 @@
 
 import clsx from "clsx";
 import React, { useCallback, useState } from "react";
-import {
-  DEFAULT_STROKE_STYLE,
-  StrokeStyle,
-  UsableBrushes,
-  UsableColors,
-} from "../../lib/Stroke";
+import { DEFAULT_STROKE_STYLE, StrokeStyle, UsableBrushes, UsableColors } from "../../lib/Stroke";
 import cls from "./Palette.module.scss";
 
 type Props = {
@@ -32,7 +27,6 @@ const Palette = function ({ changePalette }: Props) {
     (brush: string) => {
       const foundBrush = UsableBrushes.find((b) => b.name === brush);
       if (foundBrush) {
-        console.log("found");
         const newPalette = { ...palette, brush: foundBrush };
         setPalette(newPalette);
         changePalette(newPalette);
@@ -45,16 +39,9 @@ const Palette = function ({ changePalette }: Props) {
     <div className={cls.paletteContainer}>
       <div className={cls.colorPalette}>
         {UsableColors.map(({ name, code }) => (
-          <span
-            style={{ backgroundColor: code }}
-            key={name}
-            onClick={() => changeColor(name)}
-          />
+          <span style={{ backgroundColor: code }} key={name} onClick={() => changeColor(name)} />
         ))}
-        <span
-          className={cls.currentColor}
-          style={{ backgroundColor: palette.color.code }}
-        ></span>
+        <span className={cls.currentColor} style={{ backgroundColor: palette.color.code }}></span>
       </div>
 
       <div className={cls.brushPalette}>

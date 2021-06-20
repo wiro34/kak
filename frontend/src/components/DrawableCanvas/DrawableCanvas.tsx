@@ -6,6 +6,7 @@ import { Coordinate, Stroke, StrokeStyle } from "../../lib/Stroke";
 
 type Props = {
   strokeStyle: StrokeStyle;
+  initialStrokeList: Stroke[];
   onStroke?: (stroke: Stroke) => void;
   onUndo?: () => void;
 };
@@ -13,9 +14,11 @@ type Props = {
 /**
  * 描き込みできる Canvas
  */
-const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
+const DrawableCanvas = function ({ strokeStyle, initialStrokeList, onStroke, onUndo }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [strokeList, setStrokeList] = useState<Stroke[]>([]);
+  const [strokeList, setStrokeList] = useState<Stroke[]>(initialStrokeList);
+
+  // console.log("update canvas", initialStrokeList);
 
   const refleshCanvas = useCallback(
     (currentStroke?: Stroke) => {
@@ -28,13 +31,13 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
         return;
       }
 
-      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
 
       [...strokeList, currentStroke].forEach((stroke) => {
         if (!stroke) {
           return;
         }
-        context.imageSmoothingEnabled = false;
         context.strokeStyle = stroke.style.color.code;
         context.lineJoin = "round";
         context.lineWidth = stroke.style.brush.width;
@@ -131,11 +134,7 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
       }
     };
 
-    const drawLine = (
-      strokeStyle: StrokeStyle,
-      startPoint: Coordinate,
-      endPoint: Coordinate
-    ) => {
+    const drawLine = (strokeStyle: StrokeStyle, startPoint: Coordinate, endPoint: Coordinate) => {
       if (!canvasRef.current) {
         return;
       }
@@ -145,7 +144,6 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
         return;
       }
 
-      context.imageSmoothingEnabled = false;
       context.strokeStyle = strokeStyle.color.code;
       context.lineJoin = "round";
       context.lineWidth = strokeStyle.brush.width;
@@ -165,6 +163,8 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
     };
 
     const canvas: HTMLCanvasElement = canvasRef.current;
+    refleshCanvas();
+
     canvas.addEventListener("mousedown", startDraw);
     canvas.addEventListener("mousemove", doDrawing);
     canvas.addEventListener("mouseup", stopDraw);
@@ -179,17 +179,11 @@ const DrawableCanvas = function ({ strokeStyle, onStroke, onUndo }: Props) {
       canvas.removeEventListener("mouseleave", leaveDraw);
       canvas.removeEventListener("keydown", keydown);
     };
-  }, [onStroke, onUndo, strokeList, setStrokeList, strokeStyle, undo]);
+  }, [onStroke, onUndo, strokeList, setStrokeList, strokeStyle, undo, refleshCanvas]);
 
   return (
     <div>
-      <canvas
-        tabIndex={1}
-        width="640"
-        height="480"
-        ref={canvasRef}
-        className={cls.canvas}
-      ></canvas>
+      <canvas tabIndex={1} width="640" height="480" ref={canvasRef} className={cls.canvas}></canvas>
       <button onClick={undo}>undo</button>
     </div>
   );

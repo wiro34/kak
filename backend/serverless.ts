@@ -2,7 +2,10 @@
 
 import type { AWS } from "@serverless/typescript";
 
+import onConnect from "@functions/onConnect";
 import createRoom from "@functions/createRoom";
+import joinRoom from "@functions/joinRoom";
+import broadcast from "@functions/broadcast";
 
 const serverlessConfiguration: AWS = {
   service: "kak-backend",
@@ -12,8 +15,19 @@ const serverlessConfiguration: AWS = {
       webpackConfig: "./webpack.config.js",
       includeModules: true,
     },
+
+    // for local running
+    dynamodb: {
+      stages: ["dev"],
+      start: {
+        port: 8000,
+        inMemory: true,
+        migrate: true,
+        seed: false,
+      },
+    },
   },
-  plugins: ["serverless-webpack"],
+  plugins: ["serverless-webpack", "serverless-dynamodb-local", "serverless-offline"],
   provider: {
     name: "aws",
     region: "us-east-2",
@@ -22,8 +36,7 @@ const serverlessConfiguration: AWS = {
       {
         Effect: "Allow",
         Action: ["dynamodb:Query", "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem"],
-        Resource:
-          "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-connections-${self:provider.stage}/index/*",
+        Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-connections-${self:provider.stage}",
       },
     ],
     apiGateway: {
@@ -32,7 +45,7 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
-      TABLE_NAME: { Ref: "KaKConnectionsTable" },
+      TABLE_NAME: "${self:service}-connections-${self:provider.stage}",
     },
     websocketsApiName: "${self:service}-${self:provider.stage}",
     websocketsApiRouteSelectionExpression: "$request.body.message",
@@ -40,7 +53,7 @@ const serverlessConfiguration: AWS = {
   },
 
   // import the function via paths
-  functions: { createRoom },
+  functions: { onConnect, createRoom, joinRoom, broadcast },
 
   resources: {
     Resources: {
@@ -48,8 +61,14 @@ const serverlessConfiguration: AWS = {
         Type: "AWS::DynamoDB::Table",
         Properties: {
           TableName: "${self:service}-connections-${self:provider.stage}",
-          AttributeDefinitions: [{ AttributeName: "key", AttributeType: "S" }],
-          KeySchema: [{ AttributeName: "key", KeyType: "HASH" }],
+          AttributeDefinitions: [
+            { AttributeName: "roomId", AttributeType: "S" },
+            { AttributeName: "nickname", AttributeType: "S" },
+          ],
+          KeySchema: [
+            { AttributeName: "roomId", KeyType: "HASH" },
+            { AttributeName: "nickname", KeyType: "RANGE" },
+          ],
           ProvisionedThroughput: {
             ReadCapacityUnits: 1,
             WriteCapacityUnits: 1,

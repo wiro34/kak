@@ -34,6 +34,8 @@ This template contains a single lambda function triggered by an HTTP request mad
 
 ### Locally
 
+sls dynamodb install
+
 In order to test the hello function locally, run the following command:
 
 - `npx sls invoke local -f hello --path src/functions/hello/mock.json` if you're using NPM

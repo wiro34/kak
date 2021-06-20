@@ -10,14 +10,12 @@ body,
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(
-    170deg,
-    rgba(71, 97, 173, 1) 0%,
-    rgba(64, 183, 167, 1) 100%
-  );
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+
+  color: #ffffff;
+
+  background: linear-gradient(170deg, rgba(71, 97, 173, 1) 0%, rgba(64, 183, 167, 1) 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
@@ -28,6 +26,10 @@ body {
   -khtml-user-select: none;
   -webkit-user-drag: none;
   -khtml-user-drag: none;
+}
+
+canvas {
+  background-color: #ffffff;
 }
 
 input {
@@ -48,4 +50,13 @@ input:focus {
 input::placeholder {
   color: #ffffff;
   opacity: 0.5;
+}
+
+.notify-message {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
 }

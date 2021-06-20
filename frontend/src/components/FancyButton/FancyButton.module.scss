@@ -1,0 +1,21 @@
+/** @format */
+
+.button {
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(150deg, #ffc107 0%, #ff9800 100%);
+  box-shadow: inset 1.5px 1.5px 0px 2px rgb(255 255 255 / 50%), inset -1.5px -1.5px 0px 2px rgb(53 32 1 / 25%);
+  padding: 0.5rem 2rem;
+  cursor: pointer;
+
+  &:hover {
+    background: linear-gradient(330deg, #ffc107 0%, #ff9800 100%);
+  }
+
+  &:active {
+    transition: 0.1s linear;
+    transform: scale(0.8);
+  }
+}

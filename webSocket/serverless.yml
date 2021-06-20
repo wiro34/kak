@@ -16,10 +16,6 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - Fn::GetAtt: [KaKConnectionsTable, Arn]
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-      Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-connections-${self:provider.stage}/index/*"
   environment:
     TABLE_NAME:
       Ref: KaKConnectionsTable
@@ -31,16 +27,15 @@ functions:
   #   handler: onConnect/app.handler
   #   events:
   #     - websocket: $connect
-  disconnectHandler:
+  disconnect:
     handler: onDisconnect/app.handler
     events:
       - websocket: $disconnect
-  createRoomHandler:
+  createRoom:
     handler: createRoom/index.handler
     events:
       - websocket: createRoom
-
-  sendMessageHandler:
+  sendMessage:
     handler: sendMessage/app.handler
     events:
       - websocket: sendMessage

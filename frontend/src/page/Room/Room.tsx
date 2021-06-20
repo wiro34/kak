@@ -1,46 +1,65 @@
 /** @format */
 
 import React from "react";
+import { RouteComponentProps } from "react-router-dom";
 import AppHeader from "../../components/AppHeader/AppHeader";
 import PaintBoard from "../../components/PaintBoard/PaintBoard";
 import RemoteCanvas from "../../components/RemoteCanvas/RemoteCanvas";
-import useRoomService, { RoomContextProvider } from "../../hooks/RoomService";
+import { useRoomContext } from "../../lib/RoomService/context";
+import { useCookies } from "react-cookie";
 import cls from "./Room.module.scss";
+import RoomJoin from "../../components/RoomJoin/RoomJoin";
+import { useEffect } from "react";
 
-const Room = () => {
-  const roomId = "test";
-  const context = useRoomService(roomId);
-  const { users } = context;
-  // const [connection] = useState(new AppConnection(roomId));
-  // const [roomContext, setRoomContext] = useState({
-  //   roomId,
-  //   connection,
-  //   roomManager: new RoomManager(connection),
-  // });
-  console.log("Room", users);
+type PathParams = { roomId: string };
+type Props = RouteComponentProps<PathParams>;
 
+const Room = ({ match }: Props) => {
+  const {
+    connected,
+    roomState: { roomId, name, users },
+    joinRoom,
+  } = useRoomContext();
+  const [cookies] = useCookies(["nickname"]);
+
+  useEffect(() => {
+    (async () => {
+      if (connected && !roomId) {
+        if (cookies.nickname) {
+          await joinRoom(cookies.nickname, match.params.roomId);
+        }
+      }
+    })();
+  }, [connected]);
+
+  if (!roomId) {
+    if (!cookies.nickname) {
+      return <RoomJoin roomId={match.params.roomId} />;
+    }
+    return <div className="notify-message">ルームを読み込み中…</div>;
+  }
+
+  const others = users.filter((user) => user.name !== name);
   return (
-    <RoomContextProvider value={context}>
-      <div className="App">
-        <AppHeader roomId={roomId} />
-        <main>
-          <PaintBoard />
-        </main>
-        <section className={cls.connectedUsersPane}>
-          {users.map((user) => (
-            <div key={user.name}>
-              <RemoteCanvas
-                userName={user.name}
-                strokeList={user.strokeList}
-                width={640}
-                height={480}
-                visible={user.visible}
-              />
-            </div>
-          ))}
-        </section>
-      </div>
-    </RoomContextProvider>
+    <div>
+      <AppHeader roomId={roomId} />
+      <main>
+        <PaintBoard />
+      </main>
+      <section className={cls.connectedUsersPane}>
+        {others.map((user) => (
+          <div key={user.name}>
+            <RemoteCanvas
+              userName={user.name}
+              strokeList={user.strokeList}
+              width={640}
+              height={480}
+              visible={user.visible}
+            />
+          </div>
+        ))}
+      </section>
+    </div>
   );
 };
 

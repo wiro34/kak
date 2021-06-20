@@ -37,17 +37,19 @@
     display: inline-block;
     width: 20px;
     height: 20px;
-    border: solid 2px rgba(211, 211, 211, 0.5);
+    border: solid 2px rgba(211, 211, 211);
     border-radius: 20px;
+    background-color: #ffffff;
     cursor: pointer;
     margin-right: 5px;
     margin-bottom: 5px;
     position: relative;
+    opacity: 0.3;
 
     &::after {
       content: "";
       display: inline-block;
-      background-color: rgba(102, 102, 102, 0.5);
+      background-color: rgba(102, 102, 102);
       position: absolute;
     }
   }
@@ -82,11 +84,6 @@
   }
 
   .current {
-    border: solid 2px rgba(211, 211, 211, 1);
-    background-color: #fff1be;
-
-    &::after {
-      background-color: rgba(102, 102, 102, 1);
-    }
+    opacity: 1;
   }
 }

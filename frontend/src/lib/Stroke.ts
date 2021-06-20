@@ -66,7 +66,25 @@ export const DEFAULT_STROKE_STYLE: StrokeStyle = {
 };
 
 /**
- * Stroke を文字列表記にエンコードします
+ * StrokeCommand のリストから Stroke のリストに変換します
+ */
+export function strokeCommandToStrokeList(strokeCommands: StrokeCommand[]): Stroke[] {
+  let strokeList: Stroke[] = [];
+  strokeCommands.forEach((sc) => {
+    switch (sc.command) {
+      case "draw":
+        strokeList.push(sc.stroke);
+        break;
+      case "undo":
+        strokeList.pop();
+        break;
+    }
+  });
+  return strokeList;
+}
+
+/**
+ * StrokeCommand を文字列表記にエンコードします
  */
 export function stringifyStrokeCommand(strokeCommand: StrokeCommand): string {
   switch (strokeCommand.command) {
@@ -80,16 +98,12 @@ export function stringifyStrokeCommand(strokeCommand: StrokeCommand): string {
     case "undo":
       return "undo";
     default:
-      throw new Error(
-        `Failed to stringify StrokeCommand: command=${
-          (strokeCommand as any).command
-        }`
-      );
+      throw new Error(`Failed to stringify StrokeCommand: command=${(strokeCommand as any).command}`);
   }
 }
 
 /**
- * stroke の文字列表記をデコードします
+ * StrokeCommand の文字列表記をデコードします
  */
 export function parseStrokeCommand(stroke: string): StrokeCommand {
   const data = stroke.split(",");

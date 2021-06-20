@@ -3,19 +3,17 @@
 import "source-map-support/register";
 
 import {
-  APIGatewayProxyEventWithWebSocket,
   ConflictResult,
   InternalServerErrorResult,
-  sendMessage,
+  responseMessage,
+  ValidatedAPIGatewayProxyHandler,
 } from "@libs/apiGateway";
 import { middyfy } from "@libs/lambda";
-
 import Schema from "./schema";
-
+import { APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
-
-const db = new DynamoDB.DocumentClient({ apiVersion: "2012-08-10" });
+import { dynamodb } from "@libs/dynamodb";
+import { RoomData } from "@libs/models";
 
 export function roomCreated(roomId) {
   return {
@@ -27,44 +25,59 @@ export function roomCreated(roomId) {
 /**
  * ルームの作成
  */
-const createRoom: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEventWithWebSocket
-): Promise<APIGatewayProxyResult> => {
+const createRoom: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promise<APIGatewayProxyResult> => {
   const { TABLE_NAME } = process.env;
 
-  const { name, roomId } = JSON.parse(event.body) as Schema;
+  // TODO:
+  if (typeof event.body === "string") {
+    console.log("WARN: event.body is string.");
+    event.body = JSON.parse(event.body as any) as Schema;
+  }
+  console.log(event.body);
+  const {
+    payload: { name, roomId },
+  } = event.body;
   if (!name || !roomId) {
     return { statusCode: 400, body: "Name or room id is empty" };
   }
   const connectionId = event.requestContext.connectionId;
 
   // 既に存在するかチェック
-  try {
-    const getParams = {
-      TableName: TABLE_NAME,
-      Key: {
-        key: { S: `${connectionId}:roomId:${roomId}` },
-      },
-    };
-    const res = await db.get(getParams).promise();
-    console.log(res);
-  } catch (err) {
-    return new ConflictResult("Room id is already used: " + JSON.stringify(err));
+  const queryParams: DynamoDB.DocumentClient.QueryInput = {
+    TableName: TABLE_NAME,
+    KeyConditionExpression: "#roomId = :roomId",
+    ExpressionAttributeNames: {
+      "#roomId": "roomId",
+    },
+    ExpressionAttributeValues: {
+      ":roomId": roomId,
+    },
+  };
+  const res = await dynamodb.query(queryParams).promise();
+  if (res.Count && res.Count > 0) {
+    console.error(`Room id is already used: roomId=${roomId}`);
+    return new ConflictResult(`Room id is already used: roomId=${roomId}`);
   }
 
   // ルーム作成
   try {
+    const roomData: RoomData = {
+      roomId,
+      connectionId,
+      nickname: name,
+      ip: event.requestContext.identity.sourceIp,
+      role: "owner",
+      visible: true,
+      strokeList: [],
+    };
     const putParams = {
       TableName: TABLE_NAME,
-      Item: {
-        key: { S: `${connectionId}:roomId:${roomId}` },
-        name: { S: name },
-        role: { S: "owner" },
-      },
+      Item: roomData,
     };
-    await db.put(putParams).promise();
-    await sendMessage(event.requestContext, roomCreated(roomId));
+    await dynamodb.put(putParams).promise();
+    await responseMessage(event.requestContext, roomCreated(roomId));
   } catch (err) {
+    console.error(err);
     return new InternalServerErrorResult("Failed to connect: " + JSON.stringify(err));
   }
   return { statusCode: 200, body: "Data sent." };

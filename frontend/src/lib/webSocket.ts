@@ -134,10 +134,7 @@ const WS_MAX_ATTEMPTS = 3;
 //   }
 // }
 
-export function newConnection(
-  roomId: string,
-  onReceivedMessage: (e: any) => void
-): Sockette {
+export function newaConnection(roomId: string, onReceivedMessage: (e: any) => void): Sockette {
   return new Sockette(`${WS_API_URL}?roomId=${roomId}`, {
     timeout: WS_TIMEOUT,
     maxAttempts: WS_MAX_ATTEMPTS,

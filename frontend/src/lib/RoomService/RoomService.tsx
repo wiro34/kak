@@ -2,133 +2,179 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 // import Sockette from "sockette";
-import { parseStrokeCommand, stringifyStrokeCommand, StrokeCommand } from "../Stroke";
-import { CommandType, Message, UserData, UserName } from "./message";
+import { parseStrokeCommand, stringifyStrokeCommand, StrokeCommand, strokeCommandToStrokeList } from "../Stroke";
+import { CommandType, Role, RoomId, SendMessagePayload, UserData, UserName } from "./message";
 import { RoomContextProvider } from "./context";
-import { newConnection } from "./connection";
+import { Message, newConnection, RawUserData } from "./connection";
 import Sockette from "sockette";
+import { useMutableCallback } from "../../hooks/mutableCallback";
 
 export type RoomServiceResponse = {
   connected: boolean;
-  users: UserData[];
-  createRoom: (name: UserName) => void;
+  roomState: RoomState;
+  createRoom: (name: UserName) => Promise<RoomId>;
+  joinRoom: (name: UserName, roomId: RoomId) => Promise<RoomId>;
   sendStroke: (strokeCommand: StrokeCommand) => void;
   changeVisibility: (visible: boolean) => void;
 };
 
+type RoomState = {
+  name: UserName;
+  roomId: RoomId;
+  role: Role;
+  users: UserData[];
+};
+
 const useRoomService = (): RoomServiceResponse => {
   const [connected, setConnected] = useState(false);
-  const [users, setUsers] = useState<UserData[]>([]);
+  const [roomState, setRoomState] = useState<RoomState>({
+    name: "",
+    roomId: "",
+    role: "user",
+    users: [],
+  });
+  const createRoomPromiseFn = useRef<any>();
+  const joinRoomPromiseFn = useRef<any>();
   const conn = useRef<Sockette>();
 
+  console.log("DEBUG: Update useRoomService");
+
   const sendCommand = useCallback(
-    (commandType: CommandType, data: any) => {
+    (commandType: CommandType, payload: any) => {
       if (conn.current) {
-        conn.current.json({ message: commandType, data });
+        conn.current.json({ message: commandType, payload });
       }
     },
     [conn]
   );
 
-  const createRoom = useCallback(
-    (name: UserName) => {
-      const roomId = "aiueo";
-      sendCommand("createRoom", { name, roomId });
-    },
-    [sendCommand]
-  );
+  const createRoom = (name: UserName): Promise<RoomId> => {
+    // とりあえず適当なものを作成 UUID ほどユニークさは求めない
+    const roomId = Math.random().toString(32).substring(2);
+    sendCommand("createRoom", { name, roomId });
+    setRoomState({ ...roomState, name });
+    return new Promise((resolve, reject) => {
+      createRoomPromiseFn.current = { resolve, reject };
+    });
+  };
 
-  const recvStroke = useCallback(
-    (name: UserName, stroke: string) => {
-      const user = users.find((u) => u.name === name);
-      if (user) {
-        const rest = users.filter((u) => u.name !== name);
-        const strokeCommand = parseStrokeCommand(stroke);
-        if (strokeCommand.command === "draw") {
-          user.strokeList.push(strokeCommand.stroke);
-        } else {
-          user.strokeList.pop();
-        }
-        setUsers([...rest, { ...user, strokeList: user.strokeList }]);
+  const joinRoom = (nickname: UserName, roomId: RoomId): Promise<RoomId> => {
+    sendCommand("joinRoom", { nickname, roomId });
+    return new Promise((resolve, reject) => {
+      joinRoomPromiseFn.current = { resolve, reject };
+    });
+  };
+
+  const recvStroke = useMutableCallback((nickname: UserName, stroke: string) => {
+    const user = roomState.users.find((u) => u.name === nickname);
+    if (user) {
+      const rest = roomState.users.filter((u) => u.name !== nickname);
+      const strokeCommand = parseStrokeCommand(stroke);
+      if (strokeCommand.command === "draw") {
+        console.log("recvStroke", user);
+        user.strokeList.push(strokeCommand.stroke);
+      } else {
+        user.strokeList.pop();
       }
-    },
-    [users, setUsers]
-  );
+      setRoomState({ ...roomState, users: [...rest, { ...user, strokeList: user.strokeList }] });
+    }
+  });
 
   const recvChangeVisibility = useCallback(
     (name: UserName, visible: boolean) => {
-      const user = users.find((u) => u.name === name);
-      if (user) {
-        const rest = users.filter((u) => u.name !== name);
-        setUsers([...rest, { ...user, visible }]);
-      }
+      // const user = users.find((u) => u.name === name);
+      // if (user) {
+      //   const rest = users.filter((u) => u.name !== name);
+      //   setUsers([...rest, { ...user, visible }]);
+      // }
     },
-    [users, setUsers]
+    [roomState, setRoomState]
   );
 
-  const onReceiveMessage = useCallback(
-    (message: Message) => {
-      switch (message.type) {
-        case "connect":
-          setUsers([...users, { name: message.payload.name, strokeList: [], visible: true }]);
-          break;
-        case "disconnect":
-          setUsers(users.filter((u) => u.name !== message.payload.name));
-          break;
-        case "recvDraw":
-          recvStroke(message.payload.name, message.payload.strokeCommand);
-          break;
-        case "changeVisibility":
-          recvChangeVisibility(message.payload.name, message.payload.visible);
-          break;
-      }
-    },
-    [users, setUsers, recvStroke, recvChangeVisibility]
-  );
+  const onReceiveSendMessage = (payload: SendMessagePayload) => {
+    switch (payload.type) {
+      // case "connect":
+      //   setUsers([...users, { name: payload.data.nickname, strokeList: [], visible: true }]);
+      //   break;
+      // case "disconnect":
+      //   setUsers(users.filter((u) => u.name !== payload.data.nickname));
+      //   break;
+      case "draw":
+        recvStroke(payload.data.nickname, payload.data.strokeCommand);
+        break;
+      case "changeVisibility":
+        recvChangeVisibility(payload.data.nickname, payload.data.visible);
+        break;
+    }
+  };
 
-  const sendStroke = useCallback(
-    (strokeCommand: StrokeCommand) => {
-      // TODO: バッファリング
-      if (users[0]) {
-        if (strokeCommand.command === "draw") {
-          onReceiveMessage({
-            type: "recvDraw",
-            payload: {
-              name: users[0].name,
-              strokeCommand: stringifyStrokeCommand(strokeCommand),
-            },
-          });
-        } else {
-          onReceiveMessage({
-            type: "recvDraw",
-            payload: {
-              name: users[0].name,
-              strokeCommand: "undo",
-            },
-          });
+  const onReceiveMessage = (message: Message) => {
+    switch (message.message) {
+      case "roomCreated":
+        setRoomState({ ...roomState, roomId: message.payload.roomId, role: "owner", users: [] });
+        if (createRoomPromiseFn.current) {
+          const { resolve } = createRoomPromiseFn.current;
+          resolve(message.payload.roomId);
         }
-      }
-    },
-    [users, onReceiveMessage]
-  );
+        break;
+      case "roomJoined":
+        if (joinRoomPromiseFn.current) {
+          const { resolve, reject } = joinRoomPromiseFn.current;
+          const users = message.payload.users;
+          const you = users.find((user) => user.nickname === message.payload.you);
+          if (you) {
+            setRoomState({
+              roomId: message.payload.roomId,
+              name: you.nickname,
+              role: you.role,
+              users: convertRawUserDataToUserData(users),
+            });
+            resolve(message.payload);
+          } else {
+            // TODO: エラーハンドリング
+            reject("ERROR: roomJoined");
+          }
+        }
+        break;
+      case "roomNotFound":
+        if (joinRoomPromiseFn.current) {
+          const { reject } = joinRoomPromiseFn.current;
+          reject("roomNotFound");
+        }
+        break;
+      case "broadcast":
+        onReceiveSendMessage(message.payload);
+        break;
+    }
+  };
+
+  const sendStroke = (strokeCommand: StrokeCommand) => {
+    // TODO: バッファリング必要？
+    const data: SendMessagePayload = {
+      roomId: roomState.roomId,
+      type: "draw",
+      data: {
+        nickname: roomState.name,
+        strokeCommand: stringifyStrokeCommand(strokeCommand),
+      },
+    };
+    sendCommand("broadcast", data);
+  };
 
   const changeVisibility = useCallback(
     (visible: boolean) => {
       // for debug
-      onReceiveMessage({
-        type: "changeVisibility",
-        payload: { name: "foobar", visible },
-      });
+      // onReceiveMessage({
+      //   type: "changeVisibility",
+      //   data: { name: "foobar", visible },
+      // });
     },
-    [users, setUsers, recvStroke, recvChangeVisibility]
+    [roomState, setRoomState, recvStroke, recvChangeVisibility]
   );
 
   useEffect(() => {
-    const f = (e: any) => {
-      console.log(e);
-    };
     conn.current = newConnection(
-      f,
+      onReceiveMessage,
       (e) => {
         setConnected(true);
       },
@@ -143,42 +189,43 @@ const useRoomService = (): RoomServiceResponse => {
     console.log("RoomService initialized!!!");
 
     // for debug
-    onReceiveMessage({ type: "connect", payload: { name: "foobar" } });
+    // onReceiveMessage({ type: "connect", data: { name: "foobar" } });
 
     return () => {
       if (conn.current) {
         conn.current.close();
         conn.current = undefined;
       }
-      setUsers([]);
+      setRoomState({
+        name: "",
+        roomId: "",
+        role: "user",
+        users: [],
+      });
     };
 
     // eslint-disable-next-line
   }, []);
 
-  return { connected, users, createRoom, sendStroke, changeVisibility };
+  return { connected, roomState, createRoom, joinRoom, sendStroke, changeVisibility };
 };
 
-export default useRoomService;
+// export default useRoomService;
 
 export const Provider = ({ children }: { children: React.ReactNode }) => {
   const roomService = useRoomService();
   return <RoomContextProvider value={roomService}>{children}</RoomContextProvider>;
 };
 
-export class AppConnection {
-  // private sockette: Sockette;
-
-  constructor() {
-    // this.sockette = new Sockette(`?roomId=${roomId}`, {
-    //   timeout: WS_TIMEOUT,
-    //   maxAttempts: WS_MAX_ATTEMPTS,
-    //   onmessage: (e: any) => this.onReceiveMessage(e),
-    //   onopen: (e) => console.log("Connected!", e),
-    //   onclose: (e: any) => console.log(e),
-    //   onerror: (e: any) => console.error(e),
-    // });
-  }
-
-  close() {}
+/**
+ * サーバから送られてきた DB データを UserData に変換する
+ */
+function convertRawUserDataToUserData(rawUserData: RawUserData[]): UserData[] {
+  return rawUserData.map((data) => {
+    return {
+      name: data.nickname,
+      strokeList: strokeCommandToStrokeList(data.strokeList.map((stroke) => parseStrokeCommand(stroke))),
+      visible: data.visible,
+    };
+  });
 }

@@ -1,16 +1,37 @@
 /** @format */
 
 const AWS = require("aws-sdk");
-const sendMessage = require("../lib/apigw");
-const roomCreated = require("../lib/message");
 const db = new AWS.DynamoDB.DocumentClient({ apiVersion: "2012-08-10" });
 const { TABLE_NAME } = process.env;
+
+function roomCreated(roomId) {
+  return {
+    message: "roomCreated",
+    payload: { roomId },
+  };
+}
+
+function sendMessage(event, connectionId, message) {
+  const api = new AWS.ApiGatewayManagementApi({
+    apiVersion: "2018-11-29",
+    endpoint: event.requestContext.domainName + "/" + event.requestContext.stage,
+  });
+
+  return api
+    .postToConnection({
+      ConnectionId: connectionId,
+      Data: JSON.stringify(message),
+    })
+    .promise();
+}
 
 /**
  * ルームの作成
  */
 exports.handler = async (event, context) => {
-  const { name, roomId } = JSON.parse(event.body);
+  const {
+    data: { name, roomId },
+  } = JSON.parse(event.body);
   if (!name || !roomId) {
     return { statusCode: 400, body: "Name or room id is empty" };
   }

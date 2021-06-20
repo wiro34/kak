@@ -1,9 +1,9 @@
 /** @format */
 
 type Schema = {
-  message: "createRoom";
+  message: "joinRoom";
   payload: {
-    name: string;
+    nickname: string;
     roomId: string;
   };
 };
