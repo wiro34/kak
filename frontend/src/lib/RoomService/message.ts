@@ -8,6 +8,7 @@ export type RawUserData = {
   role: Role;
   strokeList: string[];
   visible: boolean;
+  eyeClosed: boolean;
   connected: boolean;
 };
 
@@ -24,7 +25,8 @@ export type UserDisconnectedPayload = { id: string };
 export type BroadcastPayload =
   | { type: "draw"; roomId: RoomId; data: { id: UserID; strokeCommand: string } }
   | { type: "clear"; roomId: RoomId; data: { id: UserID } }
-  | { type: "changeVisibility"; roomId: RoomId; data: { id: UserID; visible: boolean } };
+  | { type: "changeVisibility"; roomId: RoomId; data: { id: UserID; visible: boolean } }
+  | { type: "changeEyeClosed"; roomId: RoomId; data: { id: UserID; eyeClosed: boolean } };
 export type Message =
   | { message: "roomCreated"; payload: RoomCreatedPayload }
   | { message: "roomAlreadyUsed"; payload: RoomAlreadyUsedPayload }
@@ -64,5 +66,6 @@ export type UserData = {
   role: Role;
   strokeList: Stroke[];
   visible: boolean;
+  eyeClosed: boolean;
   connected: boolean;
 };

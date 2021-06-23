@@ -9,14 +9,6 @@ import { APIGatewayProxyResult } from "aws-lambda";
 import "source-map-support/register";
 import Schema from "./schema";
 
-import { gzip } from "zlib";
-
-export type UserData = {
-  nickname: string;
-  strokeList: string[];
-  visible: boolean;
-};
-
 /**
  * ブロードキャストするメッセージ送信
  */
@@ -58,6 +50,9 @@ const broadcast: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promis
   } else if (type === "changeVisibility") {
     // 表示状態変更
     params = { ...myData, visible: (data as any).visible };
+  } else if (type === "changeEyeClosed") {
+    // 目の状態変更
+    params = { ...myData, eyeClosed: (data as any).eyeClosed };
   } else {
     throw new Error(`Unkown command type: ${type}`);
   }

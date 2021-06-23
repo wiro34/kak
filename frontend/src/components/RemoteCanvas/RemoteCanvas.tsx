@@ -1,6 +1,6 @@
 /** @format */
 
-import { faEyeSlash, faUserSlash } from "@fortawesome/free-solid-svg-icons";
+import { faBed, faEyeSlash, faFileSignature, faUserSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 import React, { useEffect, useRef } from "react";
@@ -15,13 +15,25 @@ type Props = {
   height: number;
   visible: boolean;
   connected: boolean;
+  eyeClosed: boolean;
+  grayout: boolean;
   className?: string;
 };
 
 /**
  * 他ユーザの内容を表示する Canvas
  */
-const RemoteCanvas = function ({ userName, strokeList, width, height, visible, connected, className }: Props) {
+const RemoteCanvas = function ({
+  userName,
+  strokeList,
+  width,
+  height,
+  visible,
+  connected,
+  eyeClosed,
+  grayout,
+  className,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -65,6 +77,14 @@ const RemoteCanvas = function ({ userName, strokeList, width, height, visible, c
       ) : !visible ? (
         <div className={clsx(cls.overlay, cls.overlayActive, cls.hide)}>
           <FontAwesomeIcon icon={faEyeSlash} />
+        </div>
+      ) : eyeClosed ? (
+        <div className={clsx(cls.overlay, cls.overlayActive, cls.eyeClosed)}>
+          <FontAwesomeIcon icon={faBed} />
+        </div>
+      ) : grayout ? (
+        <div className={clsx(cls.overlay, cls.overlayActive, cls.grayout)}>
+          <FontAwesomeIcon icon={faFileSignature} />
         </div>
       ) : undefined}
     </div>

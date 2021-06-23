@@ -7,6 +7,18 @@
 
   opacity: 0.8;
   padding: 5px;
+
+  font-size: 1.5rem;
+  line-height: 1.5rem;
+
+  span {
+    margin-right: 1rem;
+    cursor: pointer;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
 }
 
 .visibleIcon {

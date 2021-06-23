@@ -78,6 +78,7 @@ const createRoom: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promi
       nickname,
       role: "dealer",
       visible: true,
+      eyeClosed: false,
       owner: true,
       strokeList: [],
       connected: true,

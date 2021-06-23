@@ -27,7 +27,7 @@ const Room = ({ match, location }: Props) => {
   const [nicknameInput, setNicknameInput] = useState<string | undefined>(cookies.nickname);
   const [columnMode, setColumnMode] = useState<"draw" | "th" | "th-large">("draw");
   const [errorMessage, setErrorMessage] = useState<string>();
-  const roomService = useRoomService(roomId, cookies.nickname);
+  const roomService = useRoomService(roomId);
   const {
     connected,
     error,
@@ -93,6 +93,7 @@ const Room = ({ match, location }: Props) => {
     return <div className="notify-message">ルームを読み込み中…</div>;
   }
 
+  const myData = users.find((user) => user.id === id);
   const others = users.filter((user) => user.id !== id);
 
   // 表示状態に応じてキャンバスサイズを調整
@@ -101,6 +102,8 @@ const Room = ({ match, location }: Props) => {
   const remoteCanvasHeight = 480 * remoteCanvasScale;
   const paintBoardWrapperClassName =
     columnMode === "draw" ? cls.pb_draw : columnMode === "th-large" ? cls.pb_ThLarge : cls.pb_Th;
+
+  const eyeClosed = myData ? myData.eyeClosed : false;
 
   return (
     <RoomContextProvider value={roomService}>
@@ -122,6 +125,8 @@ const Room = ({ match, location }: Props) => {
               width={remoteCanvasWidth}
               height={remoteCanvasHeight}
               visible={user.visible}
+              eyeClosed={user.eyeClosed}
+              grayout={eyeClosed}
               connected={user.connected}
             />
           </div>

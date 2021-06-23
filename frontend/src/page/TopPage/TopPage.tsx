@@ -1,5 +1,7 @@
 /** @format */
 
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import { useCallback } from "react";
 import { useCookies } from "react-cookie";
@@ -37,6 +39,11 @@ const TopPage = () => {
             <button className={cls.button} onClick={onClick}>
               ルームを作成する
             </button>
+          </div>
+          <div className={cls.github}>
+            <a href="https://github.com/wiro34/kak">
+              <FontAwesomeIcon icon={faGithub} />
+            </a>
           </div>
         </main>
       </div>

@@ -11,6 +11,7 @@ export type Record = {
   nickname: string;
   role: string;
   visible: boolean;
+  eyeClosed: boolean;
   owner: boolean;
   strokeList: string[];
   connected: boolean;
@@ -22,6 +23,7 @@ export type UserData = {
   nickname: string;
   strokeList: string[];
   visible: boolean;
+  eyeClosed: boolean;
   connected: boolean;
 };
 
@@ -31,6 +33,7 @@ export function convertRecordToUserData(r: Record): UserData {
     nickname: r.nickname,
     strokeList: r.strokeList,
     visible: r.visible,
+    eyeClosed: r.eyeClosed,
     connected: r.connected,
   };
 }

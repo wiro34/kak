@@ -52,6 +52,28 @@ export const useBroadcast = (conn: AppConn, roomId: RoomId, { roomState, setRoom
   };
 
   /**
+   * ほかユーザのボード表示状態変更を送信します
+   */
+  const sendChangeEyeClosed = (eyeClosed: boolean) => {
+    const data: BroadcastPayload = {
+      type: "changeEyeClosed",
+      roomId,
+      data: {
+        id: roomState.id,
+        eyeClosed,
+      },
+    };
+    conn.sendCommand("broadcast", data);
+
+    // 自分の状態を更新
+    const user = roomState.users.find((u) => u.id === roomState.id);
+    if (user) {
+      const rest = roomState.users.filter((u) => u.id !== roomState.id);
+      setRoomState({ ...roomState, users: [...rest, { ...user, eyeClosed }] });
+    }
+  };
+
+  /**
    * ワンストロークを受信したときのコールバック
    */
   const recvDraw = useMutableCallback((id: UserID, stroke: string) => {
@@ -91,6 +113,17 @@ export const useBroadcast = (conn: AppConn, roomId: RoomId, { roomState, setRoom
   });
 
   /**
+   * ほかユーザのボード表示状態変更を受信したときのコールバック
+   */
+  const recvChangeEyeClosed = useMutableCallback((id: UserID, eyeClosed: boolean) => {
+    const user = roomState.users.find((u) => u.id === id);
+    if (user) {
+      const rest = roomState.users.filter((u) => u.id !== id);
+      setRoomState({ ...roomState, users: [...rest, { ...user, eyeClosed }] });
+    }
+  });
+
+  /**
    * ブロードキャストメッセージを受信したときのコールバック
    */
   const recvBroadcastMessage = (payload: BroadcastPayload) => {
@@ -104,6 +137,9 @@ export const useBroadcast = (conn: AppConn, roomId: RoomId, { roomState, setRoom
       case "changeVisibility":
         recvChangeVisibility(payload.data.id, payload.data.visible);
         break;
+      case "changeEyeClosed":
+        recvChangeEyeClosed(payload.data.id, payload.data.eyeClosed);
+        break;
     }
   };
 
@@ -111,6 +147,7 @@ export const useBroadcast = (conn: AppConn, roomId: RoomId, { roomState, setRoom
     sendStroke,
     sendClear,
     sendChangeVisibility,
+    sendChangeEyeClosed,
     recvBroadcastMessage,
   };
 };

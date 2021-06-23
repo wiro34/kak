@@ -1,7 +1,7 @@
 /** @format */
 
 import React from "react";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faBed, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCallback } from "react";
 import { useState } from "react";
@@ -16,24 +16,42 @@ const ToolBoard = function () {
   const {
     roomState: { id, users },
     sendChangeVisibility,
+    sendChangeEyeClosed,
   } = useRoomContext();
-  const initialVisibility = users.find((u) => u.id === id)?.visible;
-  const [visible, setVisible] = useState(initialVisibility === undefined ? true : initialVisibility);
+  const myData = users.find((u) => u.id === id);
+  const [visible, setVisible] = useState(myData ? myData.visible : true);
+  const [eyeClosed, setEyeClosed] = useState(myData ? myData.eyeClosed : true);
+
   const toggleHideCanvas = useCallback(() => {
     setVisible(!visible);
     sendChangeVisibility(!visible);
   }, [visible, setVisible, sendChangeVisibility]);
+
+  const toggleEyeClosed = useCallback(() => {
+    setEyeClosed(!eyeClosed);
+    sendChangeEyeClosed(!eyeClosed);
+  }, [eyeClosed, setEyeClosed, sendChangeEyeClosed]);
+
   return (
     <div className={cls.container}>
-      <Tooltip text={visible ? "非公開にする" : "公開する"}>
-        <span onClick={toggleHideCanvas} className={cls.visibleIcon}>
+      <span onClick={toggleEyeClosed} className={cls.visibleIcon}>
+        <Tooltip text={eyeClosed ? "起きる（ボードを見る）" : "寝る（みんなのボードを見ない）"}>
+          {eyeClosed ? (
+            <FontAwesomeIcon icon={faBed} className={cls.active} />
+          ) : (
+            <FontAwesomeIcon icon={faBed} className={cls.inactive} />
+          )}
+        </Tooltip>
+      </span>
+      <span onClick={toggleHideCanvas} className={cls.visibleIcon}>
+        <Tooltip text={visible ? "非公開にする" : "公開する"}>
           {visible ? (
             <FontAwesomeIcon icon={faEye} className={cls.inactive} />
           ) : (
             <FontAwesomeIcon icon={faEyeSlash} className={cls.active} />
           )}
-        </span>
-      </Tooltip>
+        </Tooltip>
+      </span>
     </div>
   );
 };

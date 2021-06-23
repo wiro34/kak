@@ -82,6 +82,7 @@ const joinRoom: ValidatedAPIGatewayProxyHandler<Schema> = async (event): Promise
       nickname,
       role: "user",
       visible: true,
+      eyeClosed: false,
       strokeList: [],
       owner: false,
       connected: true,

@@ -33,36 +33,39 @@ const DrawableCanvas = function ({ width, height, strokeStyle, initialStrokeList
   const [strokeList, setStrokeList] = useState<Stroke[]>(initialStrokeList);
   const [initialized, setInitialized] = useState(false);
 
-  const refleshCanvas = (strokeList: Stroke[], currentStroke?: Stroke) => {
-    if (!canvasRef.current) {
-      return;
-    }
-    const canvas: HTMLCanvasElement = canvasRef.current;
-    const context = canvas.getContext("2d");
-    if (!context) {
-      return;
-    }
-
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    [...strokeList, currentStroke].forEach((stroke) => {
-      if (!stroke) {
+  const refleshCanvas = useCallback(
+    (strokeList: Stroke[], currentStroke?: Stroke) => {
+      if (!canvasRef.current) {
         return;
       }
-      context.strokeStyle = stroke.style.color.code;
-      context.lineJoin = "round";
-      context.lineWidth = stroke.style.brush.width;
-
-      for (let i = 1; i < stroke.path.length; i++) {
-        context.beginPath();
-        context.moveTo(stroke.path[i - 1].x, stroke.path[i - 1].y);
-        context.lineTo(stroke.path[i].x, stroke.path[i].y);
-        context.closePath();
-        context.stroke();
+      const canvas: HTMLCanvasElement = canvasRef.current;
+      const context = canvas.getContext("2d");
+      if (!context) {
+        return;
       }
-    });
-  };
+
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      [...strokeList, currentStroke].forEach((stroke) => {
+        if (!stroke) {
+          return;
+        }
+        context.strokeStyle = stroke.style.color.code;
+        context.lineJoin = "round";
+        context.lineWidth = stroke.style.brush.width;
+
+        for (let i = 1; i < stroke.path.length; i++) {
+          context.beginPath();
+          context.moveTo(stroke.path[i - 1].x, stroke.path[i - 1].y);
+          context.lineTo(stroke.path[i].x, stroke.path[i].y);
+          context.closePath();
+          context.stroke();
+        }
+      });
+    },
+    [canvasRef]
+  );
 
   const undo = useCallback(() => {
     if (strokeList.length === 0) {

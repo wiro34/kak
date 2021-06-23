@@ -18,6 +18,7 @@ export type RoomServiceResponse = {
   sendStroke: (strokeCommand: StrokeCommand) => void;
   sendClear: () => void;
   sendChangeVisibility: (visible: boolean) => void;
+  sendChangeEyeClosed: (eyeClosed: boolean) => void;
 };
 
 export type RoomState = {
@@ -42,7 +43,7 @@ export class AppConn {
   }
 }
 
-export const useRoomService = (roomId: RoomId, nickname: string): RoomServiceResponse => {
+export const useRoomService = (roomId: RoomId): RoomServiceResponse => {
   const [roomState, setRoomState] = useState<RoomState>({
     id: "",
     roomJoined: false,
@@ -58,7 +59,11 @@ export const useRoomService = (roomId: RoomId, nickname: string): RoomServiceRes
   const { createRoom, recvRoomCreated, recvRoomAlreadyUsed } = useCreateRoom(appConn, roomId, deps);
   const { joinRoom, recvRoomJoined, recvNicknameAlreadyUsed, recvRoomNotFound, recvUserJoined, recvUserDisconnected } =
     useJoinRoom(appConn, roomId, deps);
-  const { sendStroke, sendClear, sendChangeVisibility, recvBroadcastMessage } = useBroadcast(appConn, roomId, deps);
+  const { sendStroke, sendClear, sendChangeVisibility, sendChangeEyeClosed, recvBroadcastMessage } = useBroadcast(
+    appConn,
+    roomId,
+    deps
+  );
 
   // console.log("DEBUG: Update useRoomService");
 
@@ -128,7 +133,17 @@ export const useRoomService = (roomId: RoomId, nickname: string): RoomServiceRes
     // eslint-disable-next-line
   }, []);
 
-  return { connected, error, roomState, createRoom, joinRoom, sendStroke, sendClear, sendChangeVisibility };
+  return {
+    connected,
+    error,
+    roomState,
+    createRoom,
+    joinRoom,
+    sendStroke,
+    sendClear,
+    sendChangeVisibility,
+    sendChangeEyeClosed,
+  };
 };
 
 /**
@@ -142,6 +157,7 @@ export function convertRawUserDataToUserData(rawUserData: RawUserData[]): UserDa
       role: data.role,
       strokeList: strokeCommandToStrokeList(data.strokeList.map((stroke) => parseStrokeCommand(stroke))),
       visible: data.visible,
+      eyeClosed: data.eyeClosed,
       connected: data.connected,
     };
   });
